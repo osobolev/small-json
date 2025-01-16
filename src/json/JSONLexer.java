@@ -133,6 +133,8 @@ public final class JSONLexer {
             escape = '\t';
         } else if (ch == 'u') {
             next();
+            int line = this.line;
+            int column = this.column;
             int ndigits = 0;
             int unicode = 0;
             while (ndigits < 4) {
@@ -146,7 +148,9 @@ public final class JSONLexer {
                     break;
                 }
             }
-            // todo: check if ndigits == 4
+            if (!invalidEscapes && ndigits != 4) {
+                throw new JSONParseException(line, column, "Invalid unicode escape sequence");
+            }
             return unicode;
         } else {
             if (!invalidEscapes) {
