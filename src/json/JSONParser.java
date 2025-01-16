@@ -50,6 +50,25 @@ public final class JSONParser {
         START, COMMA, VALUE
     }
 
+    public Map<String, Object> parseObject() throws IOException {
+        require(JSONTokenType.LCURLY);
+        Map<String, Object> object = new LinkedHashMap<>();
+        if (!match(JSONTokenType.RCURLY)) {
+            while (true) {
+                String key = require(JSONTokenType.STRING).text;
+                require(JSONTokenType.COLON);
+                Object value = parse();
+                object.put(key, value);
+                if (match(JSONTokenType.RCURLY))
+                    break;
+                require(JSONTokenType.COMMA);
+                if (allowTrailingComma && match(JSONTokenType.RCURLY))
+                    break;
+            }
+        }
+        return object;
+    }
+
     public List<Object> parseArray() throws IOException {
         require(JSONTokenType.LSQUARE);
         List<Object> array = new ArrayList<>();
@@ -90,22 +109,7 @@ public final class JSONParser {
     public Object parse() throws IOException {
         JSONTokenType type = current.type;
         if (type == JSONTokenType.LCURLY) {
-            next();
-            Map<String, Object> object = new LinkedHashMap<>();
-            if (!match(JSONTokenType.RCURLY)) {
-                while (true) {
-                    String key = require(JSONTokenType.STRING).text;
-                    require(JSONTokenType.COLON);
-                    Object value = parse();
-                    object.put(key, value);
-                    if (match(JSONTokenType.RCURLY))
-                        break;
-                    require(JSONTokenType.COMMA);
-                    if (allowTrailingComma && match(JSONTokenType.RCURLY))
-                        break;
-                }
-            }
-            return object;
+            return parseObject();
         } else if (type == JSONTokenType.LSQUARE) {
             return parseArray();
         } else if (type == JSONTokenType.STRING) {
