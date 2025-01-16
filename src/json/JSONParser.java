@@ -20,10 +20,10 @@ public final class JSONParser {
 
     public JSONParser(JSONParseOptions options, JSONLexer lexer) {
         this.lexer = lexer;
-        this.specialNumbers = options.features.contains(JSONReadFeature.ALLOW_NON_NUMERIC_NUMBERS);
-        this.allowMissingValues = options.features.contains(JSONReadFeature.ALLOW_MISSING_VALUES);
-        this.allowTrailingComma = options.features.contains(JSONReadFeature.ALLOW_TRAILING_COMMA);
-        this.unquotedFields = options.features.contains(JSONReadFeature.ALLOW_UNQUOTED_FIELD_NAMES);
+        this.specialNumbers = options.features.contains(JSONReadFeature.NAN_INF_NUMBERS);
+        this.allowMissingValues = options.features.contains(JSONReadFeature.ARRAY_MISSING_VALUES);
+        this.allowTrailingComma = options.features.contains(JSONReadFeature.TRAILING_COMMA);
+        this.unquotedFields = options.features.contains(JSONReadFeature.UNQUOTED_FIELD_NAMES);
 
         this.current = lexer.nextToken();
     }

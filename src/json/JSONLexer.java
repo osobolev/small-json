@@ -27,12 +27,12 @@ public final class JSONLexer {
         this.input = input;
         this.keepStrings = options.keepStrings;
         this.valueFactory = options.valueFactory;
-        this.comments = options.features.contains(JSONReadFeature.ALLOW_JAVA_COMMENTS);
-        this.singleQuotes = options.features.contains(JSONReadFeature.ALLOW_SINGLE_QUOTES);
+        this.comments = options.features.contains(JSONReadFeature.JAVA_COMMENTS);
+        this.singleQuotes = options.features.contains(JSONReadFeature.SINGLE_QUOTES);
         this.invalidEscapes = options.features.contains(JSONReadFeature.INVALID_ESCAPES);
-        this.unescapedControls = options.features.contains(JSONReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS);
+        this.unescapedControls = options.features.contains(JSONReadFeature.STRING_CONTROL_CHARS);
         this.caseInsensitive = options.features.contains(JSONReadFeature.CASE_INSENSITIVE);
-        this.specialNumbers = options.features.contains(JSONReadFeature.ALLOW_NON_NUMERIC_NUMBERS);
+        this.specialNumbers = options.features.contains(JSONReadFeature.NAN_INF_NUMBERS);
 
         this.ch1 = nextCodepoint(input);
         this.ch2 = nextCodepoint(input);
