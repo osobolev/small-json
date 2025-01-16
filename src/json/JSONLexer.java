@@ -204,19 +204,29 @@ public final class JSONLexer {
         return buf.toString();
     }
 
-    private int readDigits(StringBuilder buf) {
-        int digits = 0;
+    private enum Digits {
+        NONE, ONLY_ZERO, HAS_NON_ZERO
+    }
+
+    private Digits readDigits(StringBuilder buf) {
+        boolean hasAny = false;
+        boolean hasNonZero = false;
         while (true) {
             int ch = ch();
             if (ch >= '0' && ch <= '9') {
                 next();
                 buf.appendCodePoint(ch);
-                digits++;
+                hasAny = true;
+                if (ch != '0') {
+                    hasNonZero = true;
+                }
             } else {
                 break;
             }
         }
-        return digits;
+        if (!hasAny)
+            return Digits.NONE;
+        return hasNonZero ? Digits.HAS_NON_ZERO : Digits.ONLY_ZERO;
     }
 
     private static boolean isInfinity(String ident) {
@@ -256,26 +266,29 @@ public final class JSONLexer {
             }
         }
         StringBuilder buf = new StringBuilder();
-        int digits1 = readDigits(buf);
-        if (!leadingPoint && digits1 == 0) {
+        Digits digits1 = readDigits(buf);
+        if (!leadingPoint && digits1 == Digits.NONE) {
             throw new JSONParseException(line, column, "Leading decimal point is not allowed");
         }
         if (!leadingZeros && buf.length() > 1 && buf.charAt(0) == '0') {
             throw new JSONParseException(line, column, "Leading zeros are not allowed");
         }
-        int digits = digits1;
+        boolean hasDigits = digits1 != Digits.NONE;
         boolean floating = false;
         if (ch() == '.') {
             next();
             floating = true;
             buf.append('.');
-            int digits2 = readDigits(buf);
-            if (!trailingPoint && digits2 == 0) {
-                throw new JSONParseException(line, column, "Trailing decimal point is not allowed");
+            Digits digits2 = readDigits(buf);
+            if (digits2 == Digits.NONE) {
+                if (!trailingPoint) {
+                    throw new JSONParseException(line, column, "Trailing decimal point is not allowed");
+                }
+            } else {
+                hasDigits = true;
             }
-            digits += digits2;
         }
-        if (digits == 0) {
+        if (!hasDigits) {
             throw new JSONParseException(line, column, "Number must have at least one digit");
         }
         int ech = ch();
@@ -290,8 +303,8 @@ public final class JSONLexer {
                 next();
                 buf.append('-');
             }
-            int digits3 = readDigits(buf);
-            if (digits3 == 0) {
+            Digits digits3 = readDigits(buf);
+            if (digits3 == Digits.NONE) {
                 throw new JSONParseException(line, column, "Exponent must have at least one digit");
             }
         }
@@ -299,12 +312,15 @@ public final class JSONLexer {
         if (keepStrings) {
             value = strSign + buf;
         } else {
-            String numStr = isign < 0 ? "-" + buf : buf.toString();
-            if (floating) {
-                value = valueFactory.floatValue(numStr);
+            if (isign != 0 && !floating && digits1 == Digits.ONLY_ZERO) {
+                value = valueFactory.zeroValue(isign);
             } else {
-                // todo: special case for +/-0???
-                value = valueFactory.intValue(numStr);
+                String numStr = isign < 0 ? "-" + buf : buf.toString();
+                if (floating) {
+                    value = valueFactory.floatValue(numStr);
+                } else {
+                    value = valueFactory.intValue(numStr);
+                }
             }
         }
         return new JSONToken(floating ? JSONTokenType.FLOAT : JSONTokenType.INT, null, value, line, column);

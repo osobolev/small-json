@@ -10,6 +10,10 @@ public class JSONValueFactory {
         return sign < 0 ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
     }
 
+    public Object zeroValue(int sign) {
+        return sign < 0 ? -0.0 : +0.0;
+    }
+
     public Object intValue(String str) {
         return Long.valueOf(str);
     }
