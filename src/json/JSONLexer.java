@@ -255,7 +255,6 @@ public final class JSONLexer {
                 }
             }
         }
-        boolean floating = false;
         StringBuilder buf = new StringBuilder();
         int digits1 = readDigits(buf);
         if (!leadingPoint && digits1 == 0) {
@@ -265,6 +264,7 @@ public final class JSONLexer {
             throw new JSONParseException(line, column, "Leading zeros are not allowed");
         }
         int digits = digits1;
+        boolean floating = false;
         if (ch() == '.') {
             next();
             floating = true;
