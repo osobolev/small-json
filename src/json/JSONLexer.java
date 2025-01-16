@@ -219,7 +219,6 @@ public final class JSONLexer {
         return "Infinity".equalsIgnoreCase(ident) || "inf".equalsIgnoreCase(ident);
     }
 
-    // todo: separate int and double values???
     private JSONToken parseNumber(int line, int column) {
         StringBuilder buf = new StringBuilder();
         if (match('+')) {
@@ -246,18 +245,21 @@ public final class JSONLexer {
                 }
             }
         }
+        boolean floating = false; // todo: must be true for +/-0???
         int digits1 = readDigits(buf);
         int digits = digits1;
         if (match('.')) {
+            floating = true;
             buf.append('.');
             int digits2 = readDigits(buf);
             digits += digits2;
         }
         if (digits == 0) {
-            // todo: error
+            throw new JSONParseException(line, column, "Number must have at least one digit");
         }
         if (match('e') || match('E')) {
-            buf.append('e'); // todo: preserve original case???
+            floating = true;
+            buf.append('e'); // todo: preserve original for text output!!!
             if (match('+')) {
                 buf.append('+');
             } else if (match('-')) {
@@ -265,13 +267,18 @@ public final class JSONLexer {
             }
             int digits3 = readDigits(buf);
             if (digits3 == 0) {
-                // todo: error
+                throw new JSONParseException(line, column, "Exponent must have at least one digit");
             }
         }
         // todo: check strict JSON syntax for numbers
         String numStr = buf.toString();
-        Object value = keepStrings ? numStr : valueFactory.floating(numStr);
-        return new JSONToken(JSONTokenType.FLOAT, null, value, line, column);
+        Object value;
+        if (keepStrings) {
+            value = numStr;
+        } else {
+            value = floating ? valueFactory.floating(numStr) : valueFactory.integer(numStr);
+        }
+        return new JSONToken(floating ? JSONTokenType.FLOAT : JSONTokenType.INT, null, value, line, column);
     }
 
     private String parseIdent() {
