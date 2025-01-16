@@ -104,7 +104,7 @@ public final class JSONParser {
             if (type == JSONTokenType.COMMA) {
                 if (prev != PrevState.VALUE) {
                     if (allowMissingValues) {
-                        array.add(options.valueFactory.nullObject());
+                        array.add(options.valueFactory.nullValue());
                     } else {
                         throw new JSONParseException(current, "Extra comma in array");
                     }
@@ -116,7 +116,7 @@ public final class JSONParser {
                     if (allowTrailingComma) {
                         // do nothing
                     } else if (allowMissingValues) {
-                        array.add(options.valueFactory.nullObject());
+                        array.add(options.valueFactory.nullValue());
                     } else {
                         throw new JSONParseException(current, "Trailing comma in array");
                     }

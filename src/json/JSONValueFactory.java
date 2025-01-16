@@ -2,27 +2,27 @@ package json;
 
 public class JSONValueFactory {
 
-    public Object nan() {
+    public Object nanValue() {
         return Double.NaN;
     }
 
-    public Object infinity(int sign) {
+    public Object infinityValue(int sign) {
         return sign < 0 ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
     }
 
-    public Object integer(String str) {
+    public Object intValue(String str) {
         return Long.valueOf(str);
     }
 
-    public Object floating(String str) {
+    public Object floatValue(String str) {
         return Double.valueOf(str);
     }
 
-    public Object bool(boolean b) {
+    public Object boolValue(boolean b) {
         return b;
     }
 
-    public Object nullObject() {
+    public Object nullValue() {
         return null;
     }
 }

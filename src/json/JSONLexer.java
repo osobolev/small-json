@@ -247,7 +247,7 @@ public final class JSONLexer {
                     if (keepStrings) {
                         value = strSign + ident;
                     } else {
-                        value = valueFactory.infinity(isign);
+                        value = valueFactory.infinityValue(isign);
                     }
                     return new JSONToken(JSONTokenType.FLOAT, null, value, line, column);
                 } else {
@@ -255,7 +255,7 @@ public final class JSONLexer {
                 }
             }
         }
-        boolean floating = false; // todo: must be true for +/-0???
+        boolean floating = false;
         StringBuilder buf = new StringBuilder();
         int digits1 = readDigits(buf);
         if (!leadingPoint && digits1 == 0) {
@@ -300,7 +300,12 @@ public final class JSONLexer {
             value = strSign + buf;
         } else {
             String numStr = isign < 0 ? "-" + buf : buf.toString();
-            value = floating ? valueFactory.floating(numStr) : valueFactory.integer(numStr);
+            if (floating) {
+                value = valueFactory.floatValue(numStr);
+            } else {
+                // todo: special case for +/-0???
+                value = valueFactory.intValue(numStr);
+            }
         }
         return new JSONToken(floating ? JSONTokenType.FLOAT : JSONTokenType.INT, null, value, line, column);
     }
@@ -353,19 +358,19 @@ public final class JSONLexer {
             JSONTokenType type;
             Object value = null;
             if (isValue(ident, "true")) {
-                value = keepStrings ? ident : valueFactory.bool(true);
+                value = keepStrings ? ident : valueFactory.boolValue(true);
                 type = JSONTokenType.TRUE;
             } else if (isValue(ident, "false")) {
-                value = keepStrings ? ident : valueFactory.bool(false);
+                value = keepStrings ? ident : valueFactory.boolValue(false);
                 type = JSONTokenType.FALSE;
             } else if (isValue(ident, "null")) {
-                value = keepStrings ? ident : valueFactory.nullObject();
+                value = keepStrings ? ident : valueFactory.nullValue();
                 type = JSONTokenType.NULL;
             } else if ("NaN".equalsIgnoreCase(ident)) {
-                value = keepStrings ? ident : valueFactory.nan();
+                value = keepStrings ? ident : valueFactory.nanValue();
                 type = JSONTokenType.IDENT_FLOAT;
             } else if (isInfinity(ident)) {
-                value = keepStrings ? ident : valueFactory.infinity(0);
+                value = keepStrings ? ident : valueFactory.infinityValue(0);
                 type = JSONTokenType.IDENT_FLOAT;
             } else {
                 type = JSONTokenType.IDENT;
