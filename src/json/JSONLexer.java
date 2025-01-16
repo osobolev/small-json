@@ -16,12 +16,19 @@ public final class JSONLexer {
 
     private int line = 1;
     private int column = 1;
-    private int ch;
+    private int ch1;
+    private int ch2;
 
     public JSONLexer(JSONParseOptions options, Reader input) throws IOException {
-        this.options = options;
         this.input = input;
-        ch = nextCodepoint(input);
+        this.comments = options.features.contains(JSONReadFeature.ALLOW_JAVA_COMMENTS);
+        this.singleQuotes = options.features.contains(JSONReadFeature.ALLOW_SINGLE_QUOTES);
+        this.invalidEscapes = options.features.contains(JSONReadFeature.INVALID_ESCAPES);
+        this.unescapedControls = options.features.contains(JSONReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS);
+        this.unquotedFields = options.features.contains(JSONReadFeature.ALLOW_UNQUOTED_FIELD_NAMES);
+
+        this.ch1 = nextCodepoint(input);
+        this.ch2 = nextCodepoint(input);
     }
 
     private static int nextCodepoint(Reader input) throws IOException {
@@ -38,17 +45,18 @@ public final class JSONLexer {
     }
 
     private int ch() {
-        return ch;
+        return ch1;
     }
 
     private void next() throws IOException {
-        if (ch == '\n') {
+        if (ch1 == '\n') {
             line++;
             column = 1;
-        } else if (ch >= 0) {
+        } else if (ch1 >= 0) {
             column++;
         }
-        ch = nextCodepoint(input);
+        ch1 = ch2;
+        ch2 = nextCodepoint(input);
     }
 
     private boolean match(char c) throws IOException {
@@ -61,11 +69,36 @@ public final class JSONLexer {
     }
 
     private void skipSpaces() throws IOException {
-        // todo: skip comments in non-strict mode
         while (true) {
             int ch = ch();
             if (ch < 0)
                 break;
+            if (comments) {
+                if (ch1 == '/' && ch2 == '/') {
+                    next();
+                    next();
+                    while (ch1 >= 0) {
+                        if (ch1 == '\n') {
+                            next();
+                            break;
+                        }
+                        next();
+                    }
+                    continue;
+                } else if (ch1 == '/' && ch2 == '*') {
+                    next();
+                    next();
+                    while (ch1 >= 0) {
+                        if (ch1 == '*' && ch2 == '/') {
+                            next();
+                            next();
+                            break;
+                        }
+                        next();
+                    }
+                    continue;
+                }
+            }
             if (ch > ' ') // todo: other space chars???
                 break;
             next();
