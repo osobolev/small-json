@@ -7,8 +7,12 @@ import java.util.Map;
 
 public final class JSONLexer {
 
-    private final JSONParseOptions options;
     private final Reader input;
+    private final boolean comments;
+    private final boolean singleQuotes;
+    private final boolean invalidEscapes;
+    private final boolean unescapedControls;
+    private final boolean unquotedFields;
 
     private int line = 1;
     private int column = 1;
@@ -112,8 +116,8 @@ public final class JSONLexer {
             // todo: check if ndigits == 4
             return unicode;
         } else {
-            if (!options.features.contains(JSONReadFeature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER)) {
-                throw new JSONParseException(line, column, "Invalid escaped character");
+            if (!invalidEscapes) {
+                throw new JSONParseException(line, column, "Invalid escape sequence");
             }
             escape = ch;
         }
@@ -139,7 +143,7 @@ public final class JSONLexer {
                 buf.appendCodePoint(escape);
                 continue;
             }
-            if (ch < ' ' && !options.features.contains(JSONReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)) {
+            if (ch < ' ' && !unescapedControls) {
                 throw new JSONParseException(line, column, "Non-escaped control character");
             }
             next();
@@ -215,7 +219,7 @@ public final class JSONLexer {
             next();
             return new JSONToken(stype, new String(Character.toChars(ch)), line, column);
         } else if (ch == '"' || ch == '\'') {
-            if (ch == '\'' && !options.features.contains(JSONReadFeature.ALLOW_SINGLE_QUOTES)) {
+            if (ch == '\'' && !singleQuotes) {
                 throw new JSONParseException(line, column, "Single quotes are not allowed");
             }
             String string = parseString(ch);
@@ -237,7 +241,7 @@ public final class JSONLexer {
                 // todo: error in strict mode
                 type = JSONTokenType.NUMBER;
             } else {
-                if (!options.features.contains(JSONReadFeature.ALLOW_UNQUOTED_FIELD_NAMES)) {
+                if (!unquotedFields) {
                     throw new JSONParseException(line, column, "Unquoted field names are not allowed");
                 }
                 type = JSONTokenType.STRING;
