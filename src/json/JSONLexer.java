@@ -78,15 +78,6 @@ public final class JSONLexer {
         ch2 = nextCodepoint(input);
     }
 
-    private boolean match(char c) {
-        if (ch() == c) {
-            next();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     private void skipSpaces() {
         while (true) {
             int ch = ch();
@@ -235,13 +226,15 @@ public final class JSONLexer {
     private JSONToken parseNumber(int line, int column) {
         int isign = 0;
         String strSign = "";
-        if (match('+')) {
+        if (ch() == '+') {
             if (!leadingPlus) {
                 throw new JSONParseException(line, column, "Plus sign is not allowed");
             }
+            next();
             isign = +1;
             strSign = "+";
-        } else if (match('-')) {
+        } else if (ch() == '-') {
+            next();
             isign = -1;
             strSign = "-";
         }
@@ -272,7 +265,8 @@ public final class JSONLexer {
             throw new JSONParseException(line, column, "Leading zeros are not allowed");
         }
         int digits = digits1;
-        if (match('.')) {
+        if (ch() == '.') {
+            next();
             floating = true;
             buf.append('.');
             int digits2 = readDigits(buf);
@@ -284,12 +278,16 @@ public final class JSONLexer {
         if (digits == 0) {
             throw new JSONParseException(line, column, "Number must have at least one digit");
         }
-        if (match('e') || match('E')) {
+        int ech = ch();
+        if (ech == 'e' || ech == 'E') {
+            next();
             floating = true;
-            buf.append('e'); // todo: preserve original for text output!!!
-            if (match('+')) {
+            buf.append(ech);
+            if (ch() == '+') {
+                next();
                 buf.append('+');
-            } else if (match('-')) {
+            } else if (ch() == '-') {
+                next();
                 buf.append('-');
             }
             int digits3 = readDigits(buf);
