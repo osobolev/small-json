@@ -46,10 +46,6 @@ public final class JSONParser {
         }
     }
 
-    private enum ArrayPrevState {
-        START, COMMA, VALUE
-    }
-
     public Map<String, Object> parseObject() throws IOException {
         require(JSONTokenType.LCURLY);
         Map<String, Object> object = new LinkedHashMap<>();
@@ -67,6 +63,10 @@ public final class JSONParser {
             }
         }
         return object;
+    }
+
+    private enum ArrayPrevState {
+        START, COMMA, VALUE
     }
 
     public List<Object> parseArray() throws IOException {
