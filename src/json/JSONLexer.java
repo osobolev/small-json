@@ -99,13 +99,18 @@ public final class JSONLexer {
                 } else if (ch1 == '/' && ch2 == '*') {
                     next();
                     next();
+                    boolean finished = false;
                     while (ch1 >= 0) {
                         if (ch1 == '*' && ch2 == '/') {
+                            finished = true;
                             next();
                             next();
                             break;
                         }
                         next();
+                    }
+                    if (!finished) {
+                        throw new JSONParseException(line, column, "Comment is not closed");
                     }
                     continue;
                 }
