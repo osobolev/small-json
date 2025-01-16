@@ -12,7 +12,10 @@ public class ParserTest {
     public static void main(String[] args) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get("C:\\Downloads\\test\\test\\pass1.json"));
         String json = new String(bytes, StandardCharsets.UTF_8);
-        JSONParseOptions options = new JSONParseOptions(EnumSet.noneOf(JSONReadFeature.class));
+        EnumSet<JSONReadFeature> features = EnumSet.noneOf(JSONReadFeature.class);
+        features.add(JSONReadFeature.ALLOW_JAVA_COMMENTS);
+        JSONParseOptions options = new JSONParseOptions();
+        options.features = features;
         JSONLexer lexer = new JSONLexer(options, new StringReader(json));
         JSONParser parser = new JSONParser(options, lexer);
         Object value = parser.parse();

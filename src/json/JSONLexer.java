@@ -9,6 +9,7 @@ import java.util.Map;
 public final class JSONLexer {
 
     private final Reader input;
+    private final boolean keepStrings;
     private final JSONValueFactory valueFactory;
     private final boolean comments;
     private final boolean singleQuotes;
@@ -23,6 +24,7 @@ public final class JSONLexer {
 
     public JSONLexer(JSONParseOptions options, Reader input) {
         this.input = input;
+        this.keepStrings = options.keepStrings;
         this.valueFactory = options.valueFactory;
         this.comments = options.features.contains(JSONReadFeature.ALLOW_JAVA_COMMENTS);
         this.singleQuotes = options.features.contains(JSONReadFeature.ALLOW_SINGLE_QUOTES);
@@ -229,8 +231,14 @@ public final class JSONLexer {
             if (ch >= 0 && Character.isJavaIdentifierStart(ch)) {
                 String ident = parseIdent();
                 if (isInfinity(ident)) {
-                    Object numberValue = valueFactory.infinity(buf.charAt(0) == '-' ? -1 : 1);
-                    return new JSONToken(JSONTokenType.FLOAT, null, numberValue, line, column);
+                    Object value;
+                    if (keepStrings) {
+                        buf.append(ident);
+                        value = buf.toString();
+                    } else {
+                        value = valueFactory.infinity(buf.charAt(0) == '-' ? -1 : 1);
+                    }
+                    return new JSONToken(JSONTokenType.FLOAT, null, value, line, column);
                 } else {
                     throw new JSONParseException(line, column, "Invalid infinite number");
                 }
@@ -259,8 +267,9 @@ public final class JSONLexer {
             }
         }
         // todo: check strict JSON syntax for numbers
-        Object numberValue = valueFactory.floating(buf.toString());
-        return new JSONToken(JSONTokenType.FLOAT, null, numberValue, line, column);
+        String numStr = buf.toString();
+        Object value = keepStrings ? numStr : valueFactory.floating(numStr);
+        return new JSONToken(JSONTokenType.FLOAT, null, value, line, column);
     }
 
     private String parseIdent() {
@@ -304,19 +313,19 @@ public final class JSONLexer {
             Object value = null;
             // todo: exact match in strict mode for true/false/null:
             if ("true".equalsIgnoreCase(ident)) {
-                value = valueFactory.bool(true);
+                value = keepStrings ? ident : valueFactory.bool(true);
                 type = JSONTokenType.TRUE;
             } else if ("false".equalsIgnoreCase(ident)) {
-                value = valueFactory.bool(false);
+                value = keepStrings ? ident : valueFactory.bool(false);
                 type = JSONTokenType.FALSE;
             } else if ("null".equalsIgnoreCase(ident)) {
-                value = valueFactory.nullObject();
+                value = keepStrings ? ident : valueFactory.nullObject();
                 type = JSONTokenType.NULL;
             } else if ("NaN".equalsIgnoreCase(ident)) {
-                value = valueFactory.nan();
+                value = keepStrings ? ident : valueFactory.nan();
                 type = JSONTokenType.IDENT_FLOAT;
             } else if (isInfinity(ident)) {
-                value = valueFactory.infinity(0);
+                value = keepStrings ? ident : valueFactory.infinity(0);
                 type = JSONTokenType.IDENT_FLOAT;
             } else {
                 type = JSONTokenType.IDENT;
