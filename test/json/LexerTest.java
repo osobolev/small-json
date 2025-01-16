@@ -13,7 +13,7 @@ public class LexerTest {
         byte[] bytes = Files.readAllBytes(Paths.get("C:\\Downloads\\test\\test\\pass1.json"));
         String json = new String(bytes, StandardCharsets.UTF_8);
         EnumSet<JSONReadFeature> features = EnumSet.noneOf(JSONReadFeature.class);
-        features.add(JSONReadFeature.ALLOW_JAVA_COMMENTS);
+        features.add(JSONReadFeature.JAVA_COMMENTS);
         JSONParseOptions options = new JSONParseOptions();
         options.features = features;
         JSONLexer lexer = new JSONLexer(options, new StringReader(json));
