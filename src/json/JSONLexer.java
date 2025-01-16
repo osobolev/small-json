@@ -22,6 +22,7 @@ public final class JSONLexer {
     private final boolean leadingPoint;
     private final boolean trailingPoint;
 
+    private long index = 0;
     private int line = 1;
     private int column = 1;
     private int ch0;
@@ -49,17 +50,20 @@ public final class JSONLexer {
     }
 
     private void moveLocation(int ch0, int ch1) {
+        if (ch1 < 0)
+            return;
+        index += ch1 >= Character.MIN_SUPPLEMENTARY_CODE_POINT ? 2 : 1;
         if (ch1 == '\r' || ch1 == '\n') {
             if (!(ch0 == '\r' && ch1 == '\n')) {
                 line++;
                 column = 1;
             }
-        } else if (ch1 >= 0) {
+        } else {
             column++;
         }
     }
 
-    private int nextCodepoint(int ch0, int ch1) {
+    private int nextCodepoint(int prev0, int prev1) {
         try {
             int c1 = input.read();
             if (c1 < 0)
@@ -77,8 +81,8 @@ public final class JSONLexer {
                     error = "Missing Unicode low surrogate";
                 }
             }
-            moveLocation(ch0, ch1);
-            throw new JSONParseException(line, column, error);
+            moveLocation(prev0, prev1);
+            throw new JSONParseException(index, line, column, error);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
@@ -126,7 +130,7 @@ public final class JSONLexer {
                         next();
                     }
                     if (!finished) {
-                        throw new JSONParseException(line, column, "Comment is not closed");
+                        throw new JSONParseException(index, line, column, "Comment is not closed");
                     }
                     continue;
                 }
@@ -165,6 +169,7 @@ public final class JSONLexer {
             escape = '\t';
         } else if (ch == 'u') {
             next();
+            long index = this.index;
             int line = this.line;
             int column = this.column;
             int ndigits = 0;
@@ -181,13 +186,13 @@ public final class JSONLexer {
                 }
             }
             if (!invalidEscapes && ndigits != 4) {
-                throw new JSONParseException(line, column, "Invalid unicode escape sequence");
+                throw new JSONParseException(index, line, column, "Invalid unicode escape sequence");
             }
             buf.append((char) unicode);
             return;
         } else {
             if (!invalidEscapes) {
-                throw new JSONParseException(line, column, "Invalid escape sequence");
+                throw new JSONParseException(index, line, column, "Invalid escape sequence");
             }
             escape = ch;
         }
@@ -201,7 +206,7 @@ public final class JSONLexer {
         while (true) {
             int ch = ch();
             if (ch < 0) {
-                throw new JSONParseException(line, column, "String is not terminated");
+                throw new JSONParseException(index, line, column, "String is not terminated");
             }
             if (ch == quote) {
                 next();
@@ -213,7 +218,7 @@ public final class JSONLexer {
                 continue;
             }
             if (!unescapedControls && ch < ' ') {
-                throw new JSONParseException(line, column, "Non-escaped control character");
+                throw new JSONParseException(index, line, column, "Non-escaped control character");
             }
             next();
             buf.appendCodePoint(ch);
@@ -250,12 +255,12 @@ public final class JSONLexer {
         return "Infinity".equalsIgnoreCase(ident) || "inf".equalsIgnoreCase(ident);
     }
 
-    private JSONToken parseNumber(int line, int column) {
+    private JSONToken parseNumber(long index, int line, int column) {
         int isign = 0;
         String strSign = "";
         if (ch() == '+') {
             if (!leadingPlus) {
-                throw new JSONParseException(line, column, "Plus sign is not allowed");
+                throw new JSONParseException(index, line, column, "Plus sign is not allowed");
             }
             next();
             isign = +1;
@@ -276,19 +281,19 @@ public final class JSONLexer {
                     } else {
                         value = valueFactory.infinityValue(isign);
                     }
-                    return new JSONToken(JSONTokenType.FLOAT, null, value, line, column);
+                    return new JSONToken(JSONTokenType.FLOAT, null, value, index, line, column);
                 } else {
-                    throw new JSONParseException(line, column, "Invalid infinite number");
+                    throw new JSONParseException(index, line, column, "Invalid infinite number");
                 }
             }
         }
         StringBuilder buf = new StringBuilder();
         Digits digits1 = readDigits(buf);
         if (!leadingPoint && digits1 == Digits.NONE) {
-            throw new JSONParseException(line, column, "Leading decimal point is not allowed");
+            throw new JSONParseException(index, line, column, "Leading decimal point is not allowed");
         }
         if (!leadingZeros && buf.length() > 1 && buf.charAt(0) == '0') {
-            throw new JSONParseException(line, column, "Leading zeros are not allowed");
+            throw new JSONParseException(index, line, column, "Leading zeros are not allowed");
         }
         boolean hasDigits = digits1 != Digits.NONE;
         boolean floating = false;
@@ -299,14 +304,14 @@ public final class JSONLexer {
             Digits digits2 = readDigits(buf);
             if (digits2 == Digits.NONE) {
                 if (!trailingPoint) {
-                    throw new JSONParseException(line, column, "Trailing decimal point is not allowed");
+                    throw new JSONParseException(index, line, column, "Trailing decimal point is not allowed");
                 }
             } else {
                 hasDigits = true;
             }
         }
         if (!hasDigits) {
-            throw new JSONParseException(line, column, "Number must have at least one digit");
+            throw new JSONParseException(index, line, column, "Number must have at least one digit");
         }
         int ech = ch();
         if (ech == 'e' || ech == 'E') {
@@ -322,7 +327,7 @@ public final class JSONLexer {
             }
             Digits digits3 = readDigits(buf);
             if (digits3 == Digits.NONE) {
-                throw new JSONParseException(line, column, "Exponent must have at least one digit");
+                throw new JSONParseException(index, line, column, "Exponent must have at least one digit");
             }
         }
         Object value;
@@ -340,7 +345,7 @@ public final class JSONLexer {
                 }
             }
         }
-        return new JSONToken(floating ? JSONTokenType.FLOAT : JSONTokenType.INT, null, value, line, column);
+        return new JSONToken(floating ? JSONTokenType.FLOAT : JSONTokenType.INT, null, value, index, line, column);
     }
 
     private String parseIdent() {
@@ -370,22 +375,23 @@ public final class JSONLexer {
     public JSONToken nextToken() {
         skipSpaces();
         int ch = ch();
+        long index = this.index;
         int line = this.line;
         int column = this.column;
         if (ch < 0)
-            return new JSONToken(JSONTokenType.EOF, null, line, column);
+            return new JSONToken(JSONTokenType.EOF, null, index, line, column);
         JSONTokenType stype = SYMBOLS.get(ch);
         if (stype != null) {
             next();
-            return new JSONToken(stype, null, line, column);
+            return new JSONToken(stype, null, index, line, column);
         } else if (ch == '"' || ch == '\'') {
             if (!singleQuotes && ch == '\'') {
-                throw new JSONParseException(line, column, "Single quotes are not allowed");
+                throw new JSONParseException(index, line, column, "Single quotes are not allowed");
             }
             String string = parseString(ch);
-            return new JSONToken(JSONTokenType.STRING, string, line, column);
+            return new JSONToken(JSONTokenType.STRING, string, index, line, column);
         } else if ((ch >= '0' && ch <= '9') || ch == '+' || ch == '-' || ch == '.') {
-            return parseNumber(line, column);
+            return parseNumber(index, line, column);
         } else if (Character.isJavaIdentifierStart(ch)) {
             String ident = parseIdent();
             JSONTokenType type;
@@ -408,10 +414,10 @@ public final class JSONLexer {
             } else {
                 type = JSONTokenType.IDENT;
             }
-            return new JSONToken(type, ident, value, line, column);
+            return new JSONToken(type, ident, value, index, line, column);
         } else {
             String chStr = new String(Character.toChars(ch));
-            throw new JSONParseException(line, column, "Unexpected character '" + chStr + "'");
+            throw new JSONParseException(index, line, column, "Unexpected character '" + chStr + "'");
         }
     }
 }
