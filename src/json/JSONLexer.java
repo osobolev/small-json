@@ -180,7 +180,7 @@ public final class JSONLexer {
                 buf.appendCodePoint(escape);
                 continue;
             }
-            if (ch < ' ' && !unescapedControls) {
+            if (!unescapedControls && ch < ' ') {
                 throw new JSONParseException(line, column, "Non-escaped control character");
             }
             next();
@@ -256,7 +256,7 @@ public final class JSONLexer {
             next();
             return new JSONToken(stype, new String(Character.toChars(ch)), line, column);
         } else if (ch == '"' || ch == '\'') {
-            if (ch == '\'' && !singleQuotes) {
+            if (!singleQuotes && ch == '\'') {
                 throw new JSONParseException(line, column, "Single quotes are not allowed");
             }
             String string = parseString(ch);
