@@ -8,9 +8,8 @@ import java.util.Map;
 
 public final class JSONParser {
 
-    private static final Object NULL = null; // todo
-
     private final JSONLexer lexer;
+    private final JSONParseOptions options;
     private final boolean specialNumbers;
     private final boolean allowMissingValues;
     private final boolean allowTrailingComma;
@@ -20,6 +19,7 @@ public final class JSONParser {
 
     public JSONParser(JSONParseOptions options, JSONLexer lexer) {
         this.lexer = lexer;
+        this.options = options;
         this.specialNumbers = options.features.contains(JSONReadFeature.NAN_INF_NUMBERS);
         this.allowMissingValues = options.features.contains(JSONReadFeature.ARRAY_MISSING_VALUES);
         this.allowTrailingComma = options.features.contains(JSONReadFeature.TRAILING_COMMA);
@@ -102,7 +102,7 @@ public final class JSONParser {
             if (type == JSONTokenType.COMMA) {
                 if (prev != PrevState.VALUE) {
                     if (allowMissingValues) {
-                        array.add(NULL);
+                        array.add(options.valueFactory.nullObject());
                     } else {
                         throw new JSONParseException(current, "Extra comma in array");
                     }
@@ -114,7 +114,7 @@ public final class JSONParser {
                     if (allowTrailingComma) {
                         // do nothing
                     } else if (allowMissingValues) {
-                        array.add(NULL);
+                        array.add(options.valueFactory.nullObject());
                     } else {
                         throw new JSONParseException(current, "Trailing comma in array");
                     }
