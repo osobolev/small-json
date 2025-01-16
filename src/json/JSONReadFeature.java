@@ -36,9 +36,23 @@ public enum JSONReadFeature {
      */
     NAN_INF_NUMBERS,
     /**
-     * Recognize true/false/null ignoring case
+     * Recognize {@code true/false/null} ignoring case
      */
-    CASE_INSENSITIVE
-    // ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS, ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS, ALLOW_LEADING_ZEROS_FOR_NUMBERS,
-    // ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS
+    CASE_INSENSITIVE,
+    /**
+     * {@code +123 -> 123}
+     */
+    LEADING_PLUS_SIGN,
+    /**
+     * {@code 0123 -> 123}
+     */
+    LEADING_ZEROS,
+    /**
+     * {@code .123 -> 0.123}
+     */
+    LEADING_DECIMAL_POINT,
+    /**
+     * {@code 123. -> 123.0}
+     */
+    TRAILING_DECIMAL_POINT
 }

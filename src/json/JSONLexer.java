@@ -17,6 +17,10 @@ public final class JSONLexer {
     private final boolean unescapedControls;
     private final boolean caseInsensitive;
     private final boolean specialNumbers;
+    private final boolean leadingPlus;
+    private final boolean leadingZeros;
+    private final boolean leadingPoint;
+    private final boolean trailingPoint;
 
     private int line = 1;
     private int column = 1;
@@ -33,6 +37,10 @@ public final class JSONLexer {
         this.unescapedControls = options.features.contains(JSONReadFeature.STRING_CONTROL_CHARS);
         this.caseInsensitive = options.features.contains(JSONReadFeature.CASE_INSENSITIVE);
         this.specialNumbers = options.features.contains(JSONReadFeature.NAN_INF_NUMBERS);
+        this.leadingPlus = options.features.contains(JSONReadFeature.LEADING_PLUS_SIGN);
+        this.leadingZeros = options.features.contains(JSONReadFeature.LEADING_ZEROS);
+        this.leadingPoint = options.features.contains(JSONReadFeature.LEADING_DECIMAL_POINT);
+        this.trailingPoint = options.features.contains(JSONReadFeature.TRAILING_DECIMAL_POINT);
 
         this.ch1 = nextCodepoint(input);
         this.ch2 = nextCodepoint(input);
@@ -228,7 +236,9 @@ public final class JSONLexer {
         int isign = 0;
         String strSign = "";
         if (match('+')) {
-            // todo: error in strict mode
+            if (!leadingPlus) {
+                throw new JSONParseException(line, column, "Plus sign is not allowed");
+            }
             isign = +1;
             strSign = "+";
         } else if (match('-')) {
@@ -255,11 +265,20 @@ public final class JSONLexer {
         boolean floating = false; // todo: must be true for +/-0???
         StringBuilder buf = new StringBuilder();
         int digits1 = readDigits(buf);
+        if (!leadingPoint && digits1 == 0) {
+            throw new JSONParseException(line, column, "Leading decimal point is not allowed");
+        }
+        if (!leadingZeros && buf.length() > 1 && buf.charAt(0) == '0') {
+            throw new JSONParseException(line, column, "Leading zeros are not allowed");
+        }
         int digits = digits1;
         if (match('.')) {
             floating = true;
             buf.append('.');
             int digits2 = readDigits(buf);
+            if (!trailingPoint && digits2 == 0) {
+                throw new JSONParseException(line, column, "Trailing decimal point is not allowed");
+            }
             digits += digits2;
         }
         if (digits == 0) {
