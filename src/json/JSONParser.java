@@ -48,6 +48,47 @@ public final class JSONParser {
         }
     }
 
+    private enum ArrayPrevState {
+        START, COMMA, VALUE
+    }
+
+    public List<Object> parseArray() throws IOException {
+        require(JSONTokenType.LSQUARE);
+        List<Object> array = new ArrayList<>();
+        ArrayPrevState prev = ArrayPrevState.START;
+        while (true) {
+            JSONTokenType type = current.type;
+            if (type == JSONTokenType.COMMA) {
+                if (prev != ArrayPrevState.VALUE) {
+                    if (allowMissingValues) {
+                        array.add(NULL);
+                    } else {
+                        throw new JSONParseException(current, "Extra comma in array");
+                    }
+                }
+                next();
+                prev = ArrayPrevState.COMMA;
+            } else if (type == JSONTokenType.RSQUARE) {
+                if (prev == ArrayPrevState.COMMA) {
+                    if (allowTrailingComma) {
+                        // do nothing
+                    } else if (allowMissingValues) {
+                        array.add(NULL);
+                    } else {
+                        throw new JSONParseException(current, "Trailing comma in array");
+                    }
+                }
+                next();
+                break;
+            } else {
+                Object value = parse();
+                array.add(value);
+                prev = ArrayPrevState.VALUE;
+            }
+        }
+        return array;
+    }
+
     public Object parse() throws IOException {
         JSONTokenType type = current.type;
         if (type == JSONTokenType.LCURLY) {
@@ -68,21 +109,7 @@ public final class JSONParser {
             }
             return object;
         } else if (type == JSONTokenType.LSQUARE) {
-            next();
-            List<Object> array = new ArrayList<>();
-            if (!match(JSONTokenType.RSQUARE)) {
-                while (true) {
-                    Object value = parse();
-                    array.add(value);
-                    if (match(JSONTokenType.RSQUARE))
-                        break;
-                    require(JSONTokenType.COMMA);
-                    // todo: handle allowMissingValues
-                    if (allowTrailingComma && match(JSONTokenType.RSQUARE))
-                        break;
-                }
-            }
-            return array;
+            return parseArray();
         } else if (type == JSONTokenType.STRING) {
             String string = current.text;
             next();
