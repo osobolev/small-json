@@ -310,7 +310,7 @@ public final class JSONLexer {
         if (ech == 'e' || ech == 'E') {
             next();
             floating = true;
-            buf.append(ech);
+            buf.append((char) ech);
             if (ch() == '+') {
                 next();
                 buf.append('+');
