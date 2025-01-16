@@ -12,7 +12,7 @@ public final class JSONLexer {
     private final boolean singleQuotes;
     private final boolean invalidEscapes;
     private final boolean unescapedControls;
-    private final boolean unquotedFields;
+    private final boolean specialNumbers;
 
     private int line = 1;
     private int column = 1;
@@ -25,7 +25,7 @@ public final class JSONLexer {
         this.singleQuotes = options.features.contains(JSONReadFeature.ALLOW_SINGLE_QUOTES);
         this.invalidEscapes = options.features.contains(JSONReadFeature.INVALID_ESCAPES);
         this.unescapedControls = options.features.contains(JSONReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS);
-        this.unquotedFields = options.features.contains(JSONReadFeature.ALLOW_UNQUOTED_FIELD_NAMES);
+        this.specialNumbers = options.features.contains(JSONReadFeature.ALLOW_NON_NUMERIC_NUMBERS);
 
         this.ch1 = nextCodepoint(input);
         this.ch2 = nextCodepoint(input);
@@ -116,7 +116,7 @@ public final class JSONLexer {
         SYMBOLS.put((int) ':', JSONTokenType.COLON);
     }
 
-    private int parseEscape() throws IOException {
+    private void parseEscape(StringBuilder buf) throws IOException {
         int ch = ch();
         int escape;
         if (ch == '"' || ch == '\\' || ch == '/') {
@@ -151,7 +151,8 @@ public final class JSONLexer {
             if (!invalidEscapes && ndigits != 4) {
                 throw new JSONParseException(line, column, "Invalid unicode escape sequence");
             }
-            return unicode;
+            buf.append((char) unicode);
+            return;
         } else {
             if (!invalidEscapes) {
                 throw new JSONParseException(line, column, "Invalid escape sequence");
@@ -159,7 +160,7 @@ public final class JSONLexer {
             escape = ch;
         }
         next();
-        return escape;
+        buf.appendCodePoint(escape);
     }
 
     private String parseString(int quote) throws IOException {
@@ -176,8 +177,7 @@ public final class JSONLexer {
             }
             if (ch == '\\') {
                 next();
-                int escape = parseEscape();
-                buf.appendCodePoint(escape);
+                parseEscape(buf);
                 continue;
             }
             if (!unescapedControls && ch < ' ') {
@@ -189,19 +189,27 @@ public final class JSONLexer {
         return buf.toString();
     }
 
-    private void readDigits(StringBuilder buf) throws IOException {
+    private int readDigits(StringBuilder buf) throws IOException {
+        int digits = 0;
         while (true) {
             int ch = ch();
             if (ch >= '0' && ch <= '9') {
                 next();
                 buf.appendCodePoint(ch);
+                digits++;
             } else {
                 break;
             }
         }
+        return digits;
     }
 
-    private String parseNumber() throws IOException {
+    private static boolean isInfinity(String ident) {
+        return "Infinity".equalsIgnoreCase(ident) || "inf".equalsIgnoreCase(ident);
+    }
+
+    // todo: separate int and double values???
+    private JSONToken parseNumber(int line, int column) throws IOException {
         StringBuilder buf = new StringBuilder();
         if (match('+')) {
             // todo: error in strict mode
@@ -209,11 +217,28 @@ public final class JSONLexer {
         } else if (match('-')) {
             buf.append('-');
         }
-        readDigits(buf);
+        if (specialNumbers) {
+            int ch = ch();
+            if (ch >= 0 && Character.isJavaIdentifierStart(ch)) {
+                String ident = parseIdent();
+                if (isInfinity(ident)) {
+                    double numberValue = buf.charAt(0) == '-' ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
+                    return new JSONToken(JSONTokenType.FLOAT, null, numberValue, line, column);
+                } else {
+                    throw new JSONParseException(line, column, "Invalid infinite number");
+                }
+            }
+        }
+        int digits1 = readDigits(buf);
+        int digits = digits1;
         if (match('.')) {
             buf.append('.');
+            int digits2 = readDigits(buf);
+            digits += digits2;
         }
-        readDigits(buf);
+        if (digits == 0) {
+            // todo: error
+        }
         if (match('e') || match('E')) {
             buf.append('e'); // todo: preserve original case???
             if (match('+')) {
@@ -221,11 +246,14 @@ public final class JSONLexer {
             } else if (match('-')) {
                 buf.append('-');
             }
-            readDigits(buf);
+            int digits3 = readDigits(buf);
+            if (digits3 == 0) {
+                // todo: error
+            }
         }
-        // todo: parse +/- inf???
+        Object numberValue = null; // todo!!! parse as ???
         // todo: check strict JSON syntax for numbers
-        return buf.toString();
+        return new JSONToken(JSONTokenType.FLOAT, null, numberValue, line, column);
     }
 
     private String parseIdent() throws IOException {
@@ -250,11 +278,11 @@ public final class JSONLexer {
         int line = this.line;
         int column = this.column;
         if (ch < 0)
-            return new JSONToken(JSONTokenType.EOF, "", line, column);
+            return new JSONToken(JSONTokenType.EOF, null, line, column);
         JSONTokenType stype = SYMBOLS.get(ch);
         if (stype != null) {
             next();
-            return new JSONToken(stype, new String(Character.toChars(ch)), line, column);
+            return new JSONToken(stype, null, line, column);
         } else if (ch == '"' || ch == '\'') {
             if (!singleQuotes && ch == '\'') {
                 throw new JSONParseException(line, column, "Single quotes are not allowed");
@@ -262,12 +290,12 @@ public final class JSONLexer {
             String string = parseString(ch);
             return new JSONToken(JSONTokenType.STRING, string, line, column);
         } else if ((ch >= '0' && ch <= '9') || ch == '+' || ch == '-' || ch == '.') {
-            String number = parseNumber();
-            return new JSONToken(JSONTokenType.NUMBER, number, line, column);
+            return parseNumber(line, column);
         } else if (Character.isJavaIdentifierStart(ch)) {
             String ident = parseIdent();
             JSONTokenType type;
-            // todo: exact match in strict mode:
+            Object numberValue = null;
+            // todo: exact match in strict mode for true/false/null:
             if ("true".equalsIgnoreCase(ident)) {
                 type = JSONTokenType.TRUE;
             } else if ("false".equalsIgnoreCase(ident)) {
@@ -275,15 +303,15 @@ public final class JSONLexer {
             } else if ("null".equalsIgnoreCase(ident)) {
                 type = JSONTokenType.NULL;
             } else if ("NaN".equalsIgnoreCase(ident)) {
-                // todo: error in strict mode
-                type = JSONTokenType.NUMBER;
+                numberValue = Double.NaN;
+                type = JSONTokenType.IDENT_FLOAT;
+            } else if (isInfinity(ident)) {
+                numberValue = Double.POSITIVE_INFINITY;
+                type = JSONTokenType.IDENT_FLOAT;
             } else {
-                if (!unquotedFields) {
-                    throw new JSONParseException(line, column, "Unquoted field names are not allowed");
-                }
-                type = JSONTokenType.STRING;
+                type = JSONTokenType.IDENT;
             }
-            return new JSONToken(type, ident, line, column);
+            return new JSONToken(type, ident, numberValue, line, column);
         } else {
             return null;
         }
