@@ -42,11 +42,11 @@ public final class JSONLexer {
         this.leadingPoint = options.features.contains(JSONReadFeature.LEADING_DECIMAL_POINT);
         this.trailingPoint = options.features.contains(JSONReadFeature.TRAILING_DECIMAL_POINT);
 
-        this.ch1 = nextCodepoint(input);
-        this.ch2 = nextCodepoint(input);
+        this.ch1 = nextCodepoint(-1);
+        this.ch2 = nextCodepoint(ch1);
     }
 
-    private static int nextCodepoint(Reader input) {
+    private int nextCodepoint(int prev) {
         try {
             int c1 = input.read();
             if (c1 < 0)
@@ -54,10 +54,25 @@ public final class JSONLexer {
             if (!Character.isHighSurrogate((char) c1))
                 return c1;
             int c2 = input.read();
-            if (c2 < 0)
-                return -1; // todo: throw error???
-            // todo: check for low surrogate???
-            return Character.toCodePoint((char) c1, (char) c2);
+            String error;
+            if (c2 < 0) {
+                error = "Unexpected EOF after Unicode high surrogate";
+            } else {
+                if (Character.isLowSurrogate((char) c2)) {
+                    return Character.toCodePoint((char) c1, (char) c2);
+                } else {
+                    error = "Missing Unicode low surrogate";
+                }
+            }
+            int line = this.line;
+            int column = this.column;
+            if (prev == '\n') {
+                line++;
+                column = 1;
+            } else if (prev >= 0) {
+                column++;
+            }
+            throw new JSONParseException(line, column, error);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
@@ -75,7 +90,7 @@ public final class JSONLexer {
             column++;
         }
         ch1 = ch2;
-        ch2 = nextCodepoint(input);
+        ch2 = nextCodepoint(ch1);
     }
 
     private void skipSpaces() {
