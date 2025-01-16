@@ -277,7 +277,7 @@ public final class JSONLexer {
         return buf.toString();
     }
 
-    private JSONToken tryNextToken() {
+    public JSONToken nextToken() {
         skipSpaces();
         int ch = ch();
         int line = this.line;
@@ -318,19 +318,8 @@ public final class JSONLexer {
             }
             return new JSONToken(type, ident, numberValue, line, column);
         } else {
-            return null;
-        }
-    }
-
-    public JSONToken nextToken() {
-        while (true) {
-            JSONToken token = tryNextToken();
-            if (token == null) {
-                // todo: error in strict mode
-                next();
-            } else {
-                return token;
-            }
+            String chStr = new String(Character.toChars(ch));
+            throw new JSONParseException(line, column, "Unexpected character '" + chStr + "'");
         }
     }
 }
