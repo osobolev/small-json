@@ -8,4 +8,5 @@ public class JSONParseOptions {
     public Set<JSONReadFeature> features = EnumSet.noneOf(JSONReadFeature.class);
     public JSONValueFactory valueFactory = new JSONValueFactory();
     public boolean keepStrings = false;
+    public boolean allowDuplicateKeys = false;
 }

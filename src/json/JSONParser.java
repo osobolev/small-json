@@ -79,11 +79,13 @@ public final class JSONParser {
                         throw new JSONParseException(current, "Unquoted field names are not allowed");
                     }
                     key = current.text;
+                    if (!options.allowDuplicateKeys && object.containsKey(key)) {
+                        throw new JSONParseException(current, "Duplicate key '" + key + "' in object");
+                    }
                     next();
                 } else {
                     throw new JSONParseException(current, "Expected field name but found " + type);
                 }
-                // todo: check for duplicate keys
                 require(JSONTokenType.COLON, "Expected colon after key");
                 Object value = parse();
                 object.put(key, value);
