@@ -10,7 +10,6 @@ public final class JSONParser {
 
     private static final Object NULL = null; // todo
 
-    private final JSONParseOptions options;
     private final JSONLexer lexer;
     private final boolean allowMissingValues;
     private final boolean allowTrailingComma;
@@ -18,7 +17,6 @@ public final class JSONParser {
     private JSONToken current;
 
     public JSONParser(JSONParseOptions options, JSONLexer lexer) throws IOException {
-        this.options = options;
         this.lexer = lexer;
         this.allowMissingValues = options.features.contains(JSONReadFeature.ALLOW_MISSING_VALUES);
         this.allowTrailingComma = options.features.contains(JSONReadFeature.ALLOW_TRAILING_COMMA);
