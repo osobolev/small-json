@@ -1,6 +1,6 @@
 package json;
 
-import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,7 +18,7 @@ public final class JSONParser {
 
     private JSONToken current;
 
-    public JSONParser(JSONParseOptions options, JSONLexer lexer) throws IOException {
+    public JSONParser(JSONParseOptions options, JSONLexer lexer) {
         this.lexer = lexer;
         this.specialNumbers = options.features.contains(JSONReadFeature.ALLOW_NON_NUMERIC_NUMBERS);
         this.allowMissingValues = options.features.contains(JSONReadFeature.ALLOW_MISSING_VALUES);
@@ -28,11 +28,15 @@ public final class JSONParser {
         this.current = lexer.nextToken();
     }
 
-    private void next() throws IOException {
+    public JSONParser(JSONParseOptions options, Reader rdr) {
+        this(options, new JSONLexer(options, rdr));
+    }
+
+    private void next() {
         current = lexer.nextToken();
     }
 
-    private void require(JSONTokenType type) throws IOException {
+    private void require(JSONTokenType type) {
         if (current.type == type) {
             next();
         } else {
@@ -45,7 +49,7 @@ public final class JSONParser {
     }
 
     // todo: control nesting level
-    public Map<String, Object> parseObject() throws IOException {
+    public Map<String, Object> parseObject() {
         require(JSONTokenType.LCURLY);
         Map<String, Object> object = new LinkedHashMap<>();
         PrevState prev = PrevState.START;
@@ -88,7 +92,7 @@ public final class JSONParser {
         return object;
     }
 
-    public List<Object> parseArray() throws IOException {
+    public List<Object> parseArray() {
         require(JSONTokenType.LSQUARE);
         List<Object> array = new ArrayList<>();
         PrevState prev = PrevState.START;
@@ -128,7 +132,7 @@ public final class JSONParser {
         return array;
     }
 
-    public Object parsePrimitive() throws IOException {
+    public Object parsePrimitive() {
         JSONTokenType type = current.type;
         Object result;
         if (type == JSONTokenType.STRING) {
@@ -153,7 +157,7 @@ public final class JSONParser {
         return result;
     }
 
-    public Object parse() throws IOException {
+    public Object parse() {
         JSONTokenType type = current.type;
         if (type == JSONTokenType.LCURLY) {
             return parseObject();

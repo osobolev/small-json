@@ -2,6 +2,7 @@ package json;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public final class JSONLexer {
     private int ch1;
     private int ch2;
 
-    public JSONLexer(JSONParseOptions options, Reader input) throws IOException {
+    public JSONLexer(JSONParseOptions options, Reader input) {
         this.input = input;
         this.comments = options.features.contains(JSONReadFeature.ALLOW_JAVA_COMMENTS);
         this.singleQuotes = options.features.contains(JSONReadFeature.ALLOW_SINGLE_QUOTES);
@@ -31,24 +32,28 @@ public final class JSONLexer {
         this.ch2 = nextCodepoint(input);
     }
 
-    private static int nextCodepoint(Reader input) throws IOException {
-        int c1 = input.read();
-        if (c1 < 0)
-            return -1;
-        if (!Character.isHighSurrogate((char) c1))
-            return c1;
-        int c2 = input.read();
-        if (c2 < 0)
-            return -1; // todo: throw error???
-        // todo: check for low surrogate???
-        return Character.toCodePoint((char) c1, (char) c2);
+    private static int nextCodepoint(Reader input) {
+        try {
+            int c1 = input.read();
+            if (c1 < 0)
+                return -1;
+            if (!Character.isHighSurrogate((char) c1))
+                return c1;
+            int c2 = input.read();
+            if (c2 < 0)
+                return -1; // todo: throw error???
+            // todo: check for low surrogate???
+            return Character.toCodePoint((char) c1, (char) c2);
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
     }
 
     private int ch() {
         return ch1;
     }
 
-    private void next() throws IOException {
+    private void next() {
         if (ch1 == '\n') {
             line++;
             column = 1;
@@ -59,7 +64,7 @@ public final class JSONLexer {
         ch2 = nextCodepoint(input);
     }
 
-    private boolean match(char c) throws IOException {
+    private boolean match(char c) {
         if (ch() == c) {
             next();
             return true;
@@ -68,7 +73,7 @@ public final class JSONLexer {
         }
     }
 
-    private void skipSpaces() throws IOException {
+    private void skipSpaces() {
         while (true) {
             int ch = ch();
             if (ch < 0)
@@ -116,7 +121,7 @@ public final class JSONLexer {
         SYMBOLS.put((int) ':', JSONTokenType.COLON);
     }
 
-    private void parseEscape(StringBuilder buf) throws IOException {
+    private void parseEscape(StringBuilder buf) {
         int ch = ch();
         int escape;
         if (ch == '"' || ch == '\\' || ch == '/') {
@@ -163,7 +168,7 @@ public final class JSONLexer {
         buf.appendCodePoint(escape);
     }
 
-    private String parseString(int quote) throws IOException {
+    private String parseString(int quote) {
         next();
         StringBuilder buf = new StringBuilder();
         while (true) {
@@ -189,7 +194,7 @@ public final class JSONLexer {
         return buf.toString();
     }
 
-    private int readDigits(StringBuilder buf) throws IOException {
+    private int readDigits(StringBuilder buf) {
         int digits = 0;
         while (true) {
             int ch = ch();
@@ -209,7 +214,7 @@ public final class JSONLexer {
     }
 
     // todo: separate int and double values???
-    private JSONToken parseNumber(int line, int column) throws IOException {
+    private JSONToken parseNumber(int line, int column) {
         StringBuilder buf = new StringBuilder();
         if (match('+')) {
             // todo: error in strict mode
@@ -256,7 +261,7 @@ public final class JSONLexer {
         return new JSONToken(JSONTokenType.FLOAT, null, numberValue, line, column);
     }
 
-    private String parseIdent() throws IOException {
+    private String parseIdent() {
         StringBuilder buf = new StringBuilder();
         buf.appendCodePoint(ch());
         next();
@@ -272,7 +277,7 @@ public final class JSONLexer {
         return buf.toString();
     }
 
-    private JSONToken tryNextToken() throws IOException {
+    private JSONToken tryNextToken() {
         skipSpaces();
         int ch = ch();
         int line = this.line;
@@ -317,7 +322,7 @@ public final class JSONLexer {
         }
     }
 
-    public JSONToken nextToken() throws IOException {
+    public JSONToken nextToken() {
         while (true) {
             JSONToken token = tryNextToken();
             if (token == null) {
