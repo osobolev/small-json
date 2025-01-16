@@ -105,7 +105,7 @@ public final class JSONLexer {
                     next();
                     next();
                     while (ch1 >= 0) {
-                        if (ch1 == '\n') {
+                        if (ch1 == '\r' || ch1 == '\n') {
                             next();
                             break;
                         }
