@@ -139,18 +139,14 @@ public final class JSONParser {
         if (type == JSONTokenType.STRING) {
             result = current.text;
         } else if (type == JSONTokenType.FLOAT || type == JSONTokenType.INT) {
-            result = current.numberValue;
+            result = current.value;
         } else if (type == JSONTokenType.IDENT_FLOAT) {
             if (!specialNumbers) {
                 throw new JSONParseException(current, "Use of non-numeric floating point numbers not allowed");
             }
-            result = current.numberValue;
-        } else if (type == JSONTokenType.NULL) {
-            result = NULL;
-        } else if (type == JSONTokenType.TRUE) {
-            result = Boolean.TRUE;
-        } else if (type == JSONTokenType.FALSE) {
-            result = Boolean.FALSE;
+            result = current.value;
+        } else if (type == JSONTokenType.NULL || type == JSONTokenType.TRUE || type == JSONTokenType.FALSE) {
+            result = current.value;
         } else {
             throw new JSONParseException(current, "Unexpected token " + current.type);
         }

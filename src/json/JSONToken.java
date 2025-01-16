@@ -4,14 +4,14 @@ public final class JSONToken {
 
     public final JSONTokenType type;
     public final String text;
-    public final Object numberValue;
+    public final Object value;
     public final int line;
     public final int column;
 
-    public JSONToken(JSONTokenType type, String text, Object numberValue, int line, int column) {
+    public JSONToken(JSONTokenType type, String text, Object value, int line, int column) {
         this.type = type;
         this.text = text;
-        this.numberValue = numberValue;
+        this.value = value;
         this.line = line;
         this.column = column;
     }

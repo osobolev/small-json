@@ -9,6 +9,7 @@ import java.util.Map;
 public final class JSONLexer {
 
     private final Reader input;
+    private final JSONValueFactory valueFactory;
     private final boolean comments;
     private final boolean singleQuotes;
     private final boolean invalidEscapes;
@@ -22,6 +23,7 @@ public final class JSONLexer {
 
     public JSONLexer(JSONParseOptions options, Reader input) {
         this.input = input;
+        this.valueFactory = options.valueFactory;
         this.comments = options.features.contains(JSONReadFeature.ALLOW_JAVA_COMMENTS);
         this.singleQuotes = options.features.contains(JSONReadFeature.ALLOW_SINGLE_QUOTES);
         this.invalidEscapes = options.features.contains(JSONReadFeature.INVALID_ESCAPES);
@@ -227,7 +229,7 @@ public final class JSONLexer {
             if (ch >= 0 && Character.isJavaIdentifierStart(ch)) {
                 String ident = parseIdent();
                 if (isInfinity(ident)) {
-                    double numberValue = buf.charAt(0) == '-' ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
+                    Object numberValue = valueFactory.infinity(buf.charAt(0) == '-' ? -1 : 1);
                     return new JSONToken(JSONTokenType.FLOAT, null, numberValue, line, column);
                 } else {
                     throw new JSONParseException(line, column, "Invalid infinite number");
@@ -256,8 +258,8 @@ public final class JSONLexer {
                 // todo: error
             }
         }
-        Object numberValue = null; // todo!!! parse as ???
         // todo: check strict JSON syntax for numbers
+        Object numberValue = valueFactory.floating(buf.toString());
         return new JSONToken(JSONTokenType.FLOAT, null, numberValue, line, column);
     }
 
@@ -299,24 +301,27 @@ public final class JSONLexer {
         } else if (Character.isJavaIdentifierStart(ch)) {
             String ident = parseIdent();
             JSONTokenType type;
-            Object numberValue = null;
+            Object value = null;
             // todo: exact match in strict mode for true/false/null:
             if ("true".equalsIgnoreCase(ident)) {
+                value = valueFactory.bool(true);
                 type = JSONTokenType.TRUE;
             } else if ("false".equalsIgnoreCase(ident)) {
+                value = valueFactory.bool(false);
                 type = JSONTokenType.FALSE;
             } else if ("null".equalsIgnoreCase(ident)) {
+                value = valueFactory.nullObject();
                 type = JSONTokenType.NULL;
             } else if ("NaN".equalsIgnoreCase(ident)) {
-                numberValue = Double.NaN;
+                value = valueFactory.nan();
                 type = JSONTokenType.IDENT_FLOAT;
             } else if (isInfinity(ident)) {
-                numberValue = Double.POSITIVE_INFINITY;
+                value = valueFactory.infinity(0);
                 type = JSONTokenType.IDENT_FLOAT;
             } else {
                 type = JSONTokenType.IDENT;
             }
-            return new JSONToken(type, ident, numberValue, line, column);
+            return new JSONToken(type, ident, value, line, column);
         } else {
             String chStr = new String(Character.toChars(ch));
             throw new JSONParseException(line, column, "Unexpected character '" + chStr + "'");
