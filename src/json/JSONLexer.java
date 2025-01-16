@@ -24,6 +24,7 @@ public final class JSONLexer {
 
     private int line = 1;
     private int column = 1;
+    private int ch0;
     private int ch1;
     private int ch2;
 
@@ -42,11 +43,23 @@ public final class JSONLexer {
         this.leadingPoint = options.features.contains(JSONReadFeature.LEADING_DECIMAL_POINT);
         this.trailingPoint = options.features.contains(JSONReadFeature.TRAILING_DECIMAL_POINT);
 
-        this.ch1 = nextCodepoint(-1);
-        this.ch2 = nextCodepoint(ch1);
+        this.ch0 = -1;
+        this.ch1 = nextCodepoint(-1, -1);
+        this.ch2 = nextCodepoint(-1, ch1);
     }
 
-    private int nextCodepoint(int prev) {
+    private void moveLocation(int ch0, int ch1) {
+        if (ch1 == '\r' || ch1 == '\n') {
+            if (!(ch0 == '\r' && ch1 == '\n')) {
+                line++;
+                column = 1;
+            }
+        } else if (ch1 >= 0) {
+            column++;
+        }
+    }
+
+    private int nextCodepoint(int ch0, int ch1) {
         try {
             int c1 = input.read();
             if (c1 < 0)
@@ -64,14 +77,7 @@ public final class JSONLexer {
                     error = "Missing Unicode low surrogate";
                 }
             }
-            int line = this.line;
-            int column = this.column;
-            if (prev == '\n') {
-                line++;
-                column = 1;
-            } else if (prev >= 0) {
-                column++;
-            }
+            moveLocation(ch0, ch1);
             throw new JSONParseException(line, column, error);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
@@ -83,14 +89,10 @@ public final class JSONLexer {
     }
 
     private void next() {
-        if (ch1 == '\n') {
-            line++;
-            column = 1;
-        } else if (ch1 >= 0) {
-            column++;
-        }
+        moveLocation(ch0, ch1);
+        ch0 = ch1;
         ch1 = ch2;
-        ch2 = nextCodepoint(ch1);
+        ch2 = nextCodepoint(ch0, ch1);
     }
 
     private void skipSpaces() {
