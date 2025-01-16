@@ -36,11 +36,11 @@ public final class JSONParser {
         current = lexer.nextToken();
     }
 
-    private void require(JSONTokenType type) {
+    private void require(JSONTokenType type, String message) {
         if (current.type == type) {
             next();
         } else {
-            throw new JSONParseException(current, "Expected " + type + " but found " + current.type);
+            throw new JSONParseException(current, message + ", but " + current.type + " found");
         }
     }
 
@@ -50,7 +50,7 @@ public final class JSONParser {
 
     // todo: control nesting level
     public Map<String, Object> parseObject() {
-        require(JSONTokenType.LCURLY);
+        require(JSONTokenType.LCURLY, "Object must start with '{'");
         Map<String, Object> object = new LinkedHashMap<>();
         PrevState prev = PrevState.START;
         while (true) {
@@ -83,7 +83,8 @@ public final class JSONParser {
                 } else {
                     throw new JSONParseException(current, "Expected field name but found " + type);
                 }
-                require(JSONTokenType.COLON);
+                // todo: check for duplicate keys
+                require(JSONTokenType.COLON, "Expected colon after key");
                 Object value = parse();
                 object.put(key, value);
                 prev = PrevState.VALUE;
@@ -93,7 +94,7 @@ public final class JSONParser {
     }
 
     public List<Object> parseArray() {
-        require(JSONTokenType.LSQUARE);
+        require(JSONTokenType.LSQUARE, "Array must start with '['");
         List<Object> array = new ArrayList<>();
         PrevState prev = PrevState.START;
         while (true) {
