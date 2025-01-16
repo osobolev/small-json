@@ -230,7 +230,7 @@ public final class JSONLexer {
             int ch = ch();
             if (ch >= '0' && ch <= '9') {
                 next();
-                buf.appendCodePoint(ch);
+                buf.append((char) ch);
                 hasAny = true;
                 if (ch != '0') {
                     hasNonZero = true;
