@@ -15,6 +15,7 @@ public final class JSONLexer {
     private final boolean singleQuotes;
     private final boolean invalidEscapes;
     private final boolean unescapedControls;
+    private final boolean caseInsensitive;
     private final boolean specialNumbers;
 
     private int line = 1;
@@ -30,6 +31,7 @@ public final class JSONLexer {
         this.singleQuotes = options.features.contains(JSONReadFeature.ALLOW_SINGLE_QUOTES);
         this.invalidEscapes = options.features.contains(JSONReadFeature.INVALID_ESCAPES);
         this.unescapedControls = options.features.contains(JSONReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS);
+        this.caseInsensitive = options.features.contains(JSONReadFeature.CASE_INSENSITIVE);
         this.specialNumbers = options.features.contains(JSONReadFeature.ALLOW_NON_NUMERIC_NUMBERS);
 
         this.ch1 = nextCodepoint(input);
@@ -288,6 +290,14 @@ public final class JSONLexer {
         return buf.toString();
     }
 
+    private boolean isValue(String ident, String valueText) {
+        if (caseInsensitive) {
+            return valueText.equalsIgnoreCase(ident);
+        } else {
+            return valueText.equals(ident);
+        }
+    }
+
     public JSONToken nextToken() {
         skipSpaces();
         int ch = ch();
@@ -311,14 +321,13 @@ public final class JSONLexer {
             String ident = parseIdent();
             JSONTokenType type;
             Object value = null;
-            // todo: exact match in strict mode for true/false/null:
-            if ("true".equalsIgnoreCase(ident)) {
+            if (isValue(ident, "true")) {
                 value = keepStrings ? ident : valueFactory.bool(true);
                 type = JSONTokenType.TRUE;
-            } else if ("false".equalsIgnoreCase(ident)) {
+            } else if (isValue(ident, "false")) {
                 value = keepStrings ? ident : valueFactory.bool(false);
                 type = JSONTokenType.FALSE;
-            } else if ("null".equalsIgnoreCase(ident)) {
+            } else if (isValue(ident, "null")) {
                 value = keepStrings ? ident : valueFactory.nullObject();
                 type = JSONTokenType.NULL;
             } else if ("NaN".equalsIgnoreCase(ident)) {
