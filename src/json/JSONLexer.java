@@ -220,12 +220,15 @@ public final class JSONLexer {
     }
 
     private JSONToken parseNumber(int line, int column) {
-        StringBuilder buf = new StringBuilder();
+        int isign = 0;
+        String strSign = "";
         if (match('+')) {
             // todo: error in strict mode
-            buf.append('+');
+            isign = +1;
+            strSign = "+";
         } else if (match('-')) {
-            buf.append('-');
+            isign = -1;
+            strSign = "-";
         }
         if (specialNumbers) {
             int ch = ch();
@@ -234,10 +237,9 @@ public final class JSONLexer {
                 if (isInfinity(ident)) {
                     Object value;
                     if (keepStrings) {
-                        buf.append(ident);
-                        value = buf.toString();
+                        value = strSign + ident;
                     } else {
-                        value = valueFactory.infinity(buf.charAt(0) == '-' ? -1 : 1);
+                        value = valueFactory.infinity(isign);
                     }
                     return new JSONToken(JSONTokenType.FLOAT, null, value, line, column);
                 } else {
@@ -246,6 +248,7 @@ public final class JSONLexer {
             }
         }
         boolean floating = false; // todo: must be true for +/-0???
+        StringBuilder buf = new StringBuilder();
         int digits1 = readDigits(buf);
         int digits = digits1;
         if (match('.')) {
@@ -270,12 +273,11 @@ public final class JSONLexer {
                 throw new JSONParseException(line, column, "Exponent must have at least one digit");
             }
         }
-        // todo: check strict JSON syntax for numbers
-        String numStr = buf.toString();
         Object value;
         if (keepStrings) {
-            value = numStr;
+            value = strSign + buf;
         } else {
+            String numStr = isign < 0 ? "-" + buf : buf.toString();
             value = floating ? valueFactory.floating(numStr) : valueFactory.integer(numStr);
         }
         return new JSONToken(floating ? JSONTokenType.FLOAT : JSONTokenType.INT, null, value, line, column);
