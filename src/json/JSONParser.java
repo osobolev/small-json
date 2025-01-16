@@ -8,6 +8,8 @@ import java.util.Map;
 
 public final class JSONParser {
 
+    private static final Object NULL = null; // todo
+
     private final JSONParseOptions options;
     private final JSONLexer lexer;
     private final boolean allowMissingValues;
@@ -91,7 +93,7 @@ public final class JSONParser {
             return Double.parseDouble(number); // todo!!!
         } else if (type == JSONTokenType.NULL) {
             next();
-            return null; // todo: ???
+            return NULL;
         } else if (type == JSONTokenType.TRUE) {
             next();
             return Boolean.TRUE;
