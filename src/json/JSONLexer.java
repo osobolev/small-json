@@ -114,7 +114,7 @@ public final class JSONLexer {
                     continue;
                 }
             }
-            if (ch > ' ') // todo: other space chars???
+            if (ch > ' ')
                 break;
             next();
         }
