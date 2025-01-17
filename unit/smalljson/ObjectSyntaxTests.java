@@ -4,8 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static smalljson.TestUtil.map;
-import static smalljson.TestUtil.parse;
+import static smalljson.TestUtil.*;
 
 public class ObjectSyntaxTests {
 
@@ -15,6 +14,7 @@ public class ObjectSyntaxTests {
         assertEquals(map("x", 1), parse("{ \"x\":1 }"));
         assertEquals(map("x", 1, "y", 2), parse("{ \"x\":1, \"y\":2 }"));
         assertEquals(map("x", 1, "y", map("z", 3)), parse("{ \"x\":1, \"y\":{ \"z\":3 } }"));
+        assertEquals(map("x", 1, "y", map("z", 3)), parser("{ \"x\":1, \"y\":{ \"z\":3 } }").parseObject());
 
         assertThrows(
             JSONParseException.class,
@@ -31,6 +31,14 @@ public class ObjectSyntaxTests {
         assertThrows(
             JSONParseException.class,
             () -> parse("{ \"x\":1, ")
+        );
+        assertThrows(
+            JSONParseException.class,
+            () -> parse("{ \"x\" 1 }")
+        );
+        assertThrows(
+            JSONParseException.class,
+            () -> parse("{ \"x\"=1 }")
         );
     }
 
@@ -55,6 +63,11 @@ public class ObjectSyntaxTests {
             () -> parse(unquoted)
         );
 
-        // todo: dup keys
+        String dup = "{ \"x\":1, \"x\":2 }";
+        assertEquals(map("x", 2), parse(dup, JSONReadFeature.DUPLICATE_FIELD_NAMES));
+        assertThrows(
+            JSONParseException.class,
+            () -> parse(dup)
+        );
     }
 }

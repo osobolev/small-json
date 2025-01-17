@@ -32,13 +32,21 @@ public class TestUtil {
         }
     };
 
-    public static Object parse(String json, JSONReadFeature... features) {
-        JSONParseOptions options = JSONParseOptions
+    public static JSONParseOptions options(JSONReadFeature... features) {
+        return JSONParseOptions
             .builder()
             .valueFactory(TEST_FACTORY)
             .features(features)
             .build();
-        JSONParser parser = new JSONParser(options, json);
+    }
+
+    public static JSONParser parser(String json, JSONReadFeature... features) {
+        JSONParseOptions options = options(features);
+        return new JSONParser(options, json);
+    }
+
+    public static Object parse(String json, JSONReadFeature... features) {
+        JSONParser parser = parser(json, features);
         return parser.parse();
     }
 }
