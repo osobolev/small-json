@@ -1,6 +1,12 @@
 package smalljson;
 
 public enum JSONReadFeature {
+    /**
+     * // ...
+     * <p>and</p>
+     * /* ... &ast;/
+     * <p>comments</p>
+     */
     JAVA_COMMENTS,
     /**
      * "\x" -> "x" (ignore unsupported characters);
@@ -11,6 +17,9 @@ public enum JSONReadFeature {
      * {@code 'xyzzy' -> "xyzzy"}
      */
     SINGLE_QUOTES,
+    /**
+     * Characters with code less than 32 can occur in string without escaping
+     */
     STRING_CONTROL_CHARS,
     /**
      * {@code { x: "value" } -> { "x": "value: }}
