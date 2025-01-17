@@ -142,8 +142,6 @@ public final class JSONWriter {
 
     public void write(Object obj) {
         write(0, obj);
-        println(""); // todo: ???
-        pw.flush(); // todo: ???
     }
 
     private static final class ArrayIterator implements Iterator<Object> {
