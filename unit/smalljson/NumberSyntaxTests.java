@@ -16,10 +16,12 @@ public class NumberSyntaxTests {
         assertEquals(0, parse("0"));
         assertEquals(0, parse("-0"));
         assertEquals(123, parse("123"));
+        assertEquals(-123, parse("-123"));
         assertEquals(123.456, parse("123.456"));
         assertEquals(1e2, parse("1e2"));
         assertEquals(1e-2, parse("1e-2"));
         assertEquals(1.1e2, parse("1.1e2"));
+        assertEquals(1.1e+2, parse("1.1e+2"));
         assertEquals(1.1e-2, parse("1.1e-2"));
         assertEquals(1.234567890E+34, parse("1.234567890E+34"));
 
