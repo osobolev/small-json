@@ -3,6 +3,7 @@ package smalljson;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static smalljson.TestUtil.map;
 import static smalljson.TestUtil.parse;
 
 public class PrimitiveSyntaxTests {
@@ -31,5 +32,25 @@ public class PrimitiveSyntaxTests {
         assertEquals(true, parse("TRUE", JSONReadFeature.CASE_INSENSITIVE));
         assertEquals(false, parse("FALSE", JSONReadFeature.CASE_INSENSITIVE));
         assertNull(parse("NULL", JSONReadFeature.CASE_INSENSITIVE));
+    }
+
+    @Test
+    public void testKeys() {
+        String[] keys = {"true", "false", "null", "TRUE", "FALSE", "NULL"};
+        for (String key : keys) {
+            assertEquals(
+                map(key, "!@#"),
+                parse("{ \"" + key + "\": \"!@#\" }")
+            );
+            String unquoted = "{ " + key + ": \"!@#\" }";
+            assertEquals(
+                map(key, "!@#"),
+                parse(unquoted, JSONReadFeature.UNQUOTED_FIELD_NAMES)
+            );
+            assertThrows(
+                JSONParseException.class,
+                () -> parse(unquoted)
+            );
+        }
     }
 }
