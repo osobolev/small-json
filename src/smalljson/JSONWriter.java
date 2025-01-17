@@ -71,7 +71,7 @@ public final class JSONWriter {
                 } else {
                     println(",");
                 }
-                String key = JSONConverter.key(entry.getKey());
+                String key = String.valueOf(entry.getKey());
                 print(nestingLevel + 1, "\"" + escape(key) + "\":" + space);
                 Object value = entry.getValue();
                 write(nestingLevel + 1, value);
@@ -140,35 +140,35 @@ public final class JSONWriter {
         return buf.toString();
     }
 
-    private void write(int nestingLevel, Object obj) {
-        if (obj == null) {
+    private void write(int nestingLevel, Object value) {
+        if (value == null) {
             print("null");
-        } else if (obj instanceof JSONObject) {
-            JSONObject jsobj = (JSONObject) obj;
-            writeObject(nestingLevel, jsobj.isEmpty(), jsobj);
-        } else if (obj instanceof Map<?, ?>) {
-            Map<?, ?> map = (Map<?, ?>) obj;
+        } else if (value instanceof JSONObject) {
+            JSONObject object = (JSONObject) value;
+            writeObject(nestingLevel, object.isEmpty(), object);
+        } else if (value instanceof Map) {
+            Map<?, ?> map = (Map<?, ?>) value;
             writeObject(nestingLevel, map.isEmpty(), map.entrySet());
-        } else if (obj instanceof JSONArray) {
-            JSONArray array = (JSONArray) obj;
+        } else if (value instanceof JSONArray) {
+            JSONArray array = (JSONArray) value;
             writeArray(nestingLevel, array.isEmpty(), array);
-        } else if (obj instanceof Collection<?>) {
-            Collection<?> collection = (Collection<?>) obj;
+        } else if (value instanceof Collection) {
+            Collection<?> collection = (Collection<?>) value;
             writeArray(nestingLevel, collection.isEmpty(), collection);
-        } else if (obj.getClass().isArray()) {
-            int length = Array.getLength(obj);
-            writeArray(nestingLevel, length <= 0, () -> new ArrayIterator(obj, length));
-        } else if (obj instanceof Boolean) {
-            Boolean bool = (Boolean) obj;
+        } else if (value.getClass().isArray()) {
+            int length = Array.getLength(value);
+            writeArray(nestingLevel, length <= 0, () -> new ArrayIterator(value, length));
+        } else if (value instanceof Boolean) {
+            Boolean bool = (Boolean) value;
             print(bool.toString());
-        } else if (obj instanceof Number) {
-            Number num = (Number) obj;
+        } else if (value instanceof Number) {
+            Number num = (Number) value;
             print(num.toString());
-        } else if (obj instanceof RawValue) {
-            RawValue raw = (RawValue) obj;
+        } else if (value instanceof RawValue) {
+            RawValue raw = (RawValue) value;
             print(raw.rawJsonOutput());
         } else {
-            print("\"" + escape(obj.toString()) + "\"");
+            print("\"" + escape(value.toString()) + "\"");
         }
     }
 

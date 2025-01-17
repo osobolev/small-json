@@ -2,7 +2,8 @@ package smalljson;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 public final class JSONConverter {
 
@@ -83,43 +84,5 @@ public final class JSONConverter {
         if (value == null)
             return null;
         return (T) convertRaw(cls, value);
-    }
-
-    // todo: inline in JSONWriter???
-    public static String key(Object key) {
-        return String.valueOf(key);
-    }
-
-    // todo: move wrap... methods to JSON???
-    // todo: or remove them??? we can live with maps/lists OK???
-
-    public static JSONObject wrapObject(Map<?, ?> map) {
-        Map<String, Object> wrapped = new LinkedHashMap<>();
-        for (Map.Entry<?, ?> entry : map.entrySet()) {
-            String key = key(entry.getKey());
-            Object item = entry.getValue();
-            wrapped.put(key, wrap(item));
-        }
-        return new JSONObject(wrapped);
-    }
-
-    public static JSONArray wrapArray(Collection<?> collection) {
-        List<Object> wrapped = new ArrayList<>(collection.size());
-        for (Object item : collection) {
-            wrapped.add(wrap(item));
-        }
-        return new JSONArray(wrapped);
-    }
-
-    public static Object wrap(Object value) {
-        if (value instanceof Map) {
-            Map<?, ?> map = (Map<?, ?>) value;
-            return wrapObject(map);
-        } else if (value instanceof Collection) {
-            Collection<?> collection = (Collection<?>) value;
-            return wrapArray(collection);
-        } else {
-            return value;
-        }
     }
 }
