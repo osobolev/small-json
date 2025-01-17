@@ -16,8 +16,7 @@ public class ParserTest {
         features.add(JSONReadFeature.JAVA_COMMENTS);
         JSONParseOptions options = new JSONParseOptions();
         options.features = features;
-        JSONLexer lexer = new JSONLexer(options, new StringReader(json));
-        JSONParser parser = new JSONParser(options, lexer);
+        JSONParser parser = new JSONParser(options, new StringReader(json));
         Object value = parser.parse();
         System.out.println(value);
     }
