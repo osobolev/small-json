@@ -1,11 +1,14 @@
 package smalljson;
 
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.Map;
 
 public final class JSONWriter {
+
+    public static final String DEFAULT_INDENT = "    ";
 
     private final PrintWriter pw;
     private final String indent;
@@ -15,6 +18,18 @@ public final class JSONWriter {
         this.pw = pw;
         this.indent = indent;
         this.space = indent.isEmpty() ? "" : " ";
+    }
+
+    public static String toString(Object obj, String indent) {
+        StringWriter sw = new StringWriter();
+        try (PrintWriter pw = new PrintWriter(sw)) {
+            new JSONWriter(pw, indent).write(obj);
+        }
+        return sw.toString();
+    }
+
+    public static String toString(Object obj) {
+        return toString(obj, DEFAULT_INDENT);
     }
 
     private void print(int nestingLevel, String str) {
