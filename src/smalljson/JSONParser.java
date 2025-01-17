@@ -1,4 +1,4 @@
-package json;
+package smalljson;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;

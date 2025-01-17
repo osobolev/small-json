@@ -1,2 +1,2 @@
-module io.github.osobolev.json {
+module io.github.osobolev.smalljson {
 }

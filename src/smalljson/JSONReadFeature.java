@@ -1,4 +1,4 @@
-package json;
+package smalljson;
 
 public enum JSONReadFeature {
     JAVA_COMMENTS,

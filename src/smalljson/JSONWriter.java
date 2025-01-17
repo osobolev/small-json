@@ -1,4 +1,4 @@
-package json;
+package smalljson;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Array;

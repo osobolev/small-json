@@ -1,4 +1,4 @@
-package json;
+package smalljson;
 
 import java.util.*;
 

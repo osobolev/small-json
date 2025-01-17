@@ -1,4 +1,4 @@
-package json;
+package smalljson;
 
 public class NestingTest {
 
