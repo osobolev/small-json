@@ -18,7 +18,6 @@ public class WriterTest {
         features.add(JSONReadFeature.JAVA_COMMENTS);
         JSONParseOptions options = new JSONParseOptions();
         options.features = features;
-        options.keepStrings = true;
         JSONParser parser = new JSONParser(options, new StringReader(json));
         Object value = parser.parse();
         PrintWriter pw = new PrintWriter(System.out);

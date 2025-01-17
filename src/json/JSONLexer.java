@@ -9,7 +9,6 @@ import java.util.Map;
 public final class JSONLexer {
 
     private final Reader input;
-    private final boolean keepStrings;
     private final JSONValueFactory valueFactory;
     private final boolean comments;
     private final boolean singleQuotes;
@@ -31,7 +30,6 @@ public final class JSONLexer {
 
     public JSONLexer(JSONParseOptions options, Reader input) {
         this.input = input;
-        this.keepStrings = options.keepStrings;
         this.valueFactory = options.valueFactory;
         this.comments = options.features.contains(JSONReadFeature.JAVA_COMMENTS);
         this.singleQuotes = options.features.contains(JSONReadFeature.SINGLE_QUOTES);
@@ -152,13 +150,10 @@ public final class JSONLexer {
         SYMBOLS.put((int) ':', JSONTokenType.COLON);
     }
 
-    private void parseEscape(StringBuilder buf, StringBuilder rawBuf) {
+    private void parseEscape(StringBuilder buf) {
         int ch = ch();
         if (ch < 0) {
             throw new JSONParseException(index, line, column, "Unterminated escape sequence");
-        }
-        if (rawBuf != null) {
-            rawBuf.appendCodePoint(ch);
         }
         int escape;
         if (ch == '"' || ch == '\\' || ch == '/') {
@@ -186,9 +181,6 @@ public final class JSONLexer {
                     break;
                 int digit = Character.digit(uch, 16);
                 if (digit >= 0) {
-                    if (rawBuf != null) {
-                        rawBuf.append((char) uch);
-                    }
                     next();
                     ndigits++;
                     unicode = (unicode << 4) + digit;
@@ -213,21 +205,11 @@ public final class JSONLexer {
 
     private JSONToken parseString(long index, int line, int column, int quote) {
         next();
-        StringBuilder rawBuf;
-        if (keepStrings) {
-            rawBuf = new StringBuilder();
-            rawBuf.appendCodePoint(quote);
-        } else {
-            rawBuf = null;
-        }
         StringBuilder buf = new StringBuilder();
         while (true) {
             int ch = ch();
             if (ch < 0) {
                 throw new JSONParseException(index, line, column, "String is not terminated");
-            }
-            if (rawBuf != null) {
-                rawBuf.appendCodePoint(ch);
             }
             if (ch == quote) {
                 next();
@@ -235,7 +217,7 @@ public final class JSONLexer {
             }
             if (ch == '\\') {
                 next();
-                parseEscape(buf, rawBuf);
+                parseEscape(buf);
                 continue;
             }
             if (!unescapedControls && ch < ' ') {
@@ -244,14 +226,7 @@ public final class JSONLexer {
             next();
             buf.appendCodePoint(ch);
         }
-        String text = buf.toString();
-        Object value;
-        if (rawBuf != null) {
-            value = valueFactory.rawValue(rawBuf.toString());
-        } else {
-            value = valueFactory.stringValue(text);
-        }
-        return new JSONToken(JSONTokenType.STRING, text, value, index, line, column);
+        return new JSONToken(JSONTokenType.STRING, buf.toString(), index, line, column);
     }
 
     private enum Digits {
@@ -303,12 +278,7 @@ public final class JSONLexer {
             if (ch >= 0 && Character.isJavaIdentifierStart(ch)) {
                 String ident = parseIdent();
                 if (isInfinity(ident)) {
-                    Object value;
-                    if (keepStrings) {
-                        value = valueFactory.rawValue(strSign + ident);
-                    } else {
-                        value = valueFactory.infinityValue(isign);
-                    }
+                    Object value = valueFactory.infinityValue(isign);
                     return new JSONToken(JSONTokenType.FLOAT, null, value, index, line, column);
                 } else {
                     throw new JSONParseException(index, line, column, "Invalid infinite number");
@@ -359,20 +329,17 @@ public final class JSONLexer {
             }
         }
         Object value;
-        if (keepStrings) {
-            value = valueFactory.rawValue(strSign + buf);
+        if (isign != 0 && !floating && digits1 == Digits.ONLY_ZERO) {
+            value = valueFactory.zeroValue(isign);
         } else {
-            if (isign != 0 && !floating && digits1 == Digits.ONLY_ZERO) {
-                value = valueFactory.zeroValue(isign);
+            String numStr = isign < 0 ? "-" + buf : buf.toString();
+            if (floating) {
+                value = valueFactory.floatValue(numStr);
             } else {
-                String numStr = isign < 0 ? "-" + buf : buf.toString();
-                if (floating) {
-                    value = valueFactory.floatValue(numStr);
-                } else {
-                    value = valueFactory.intValue(numStr);
-                }
+                value = valueFactory.intValue(numStr);
             }
         }
+        // todo: remove INT as we don't know -0 is int or float???
         return new JSONToken(floating ? JSONTokenType.FLOAT : JSONTokenType.INT, null, value, index, line, column);
     }
 
@@ -424,19 +391,19 @@ public final class JSONLexer {
             JSONTokenType type;
             Object value = null;
             if (isValue(ident, "true")) {
-                value = keepStrings ? valueFactory.rawValue(ident) : valueFactory.boolValue(true);
+                value = valueFactory.boolValue(true);
                 type = JSONTokenType.TRUE;
             } else if (isValue(ident, "false")) {
-                value = keepStrings ? valueFactory.rawValue(ident) : valueFactory.boolValue(false);
+                value = valueFactory.boolValue(false);
                 type = JSONTokenType.FALSE;
             } else if (isValue(ident, "null")) {
-                value = keepStrings ? valueFactory.rawValue(ident) : valueFactory.nullValue();
+                value = valueFactory.nullValue();
                 type = JSONTokenType.NULL;
             } else if ("NaN".equalsIgnoreCase(ident)) {
-                value = keepStrings ? valueFactory.rawValue(ident) : valueFactory.nanValue();
+                value = valueFactory.nanValue();
                 type = JSONTokenType.IDENT_FLOAT;
             } else if (isInfinity(ident)) {
-                value = keepStrings ? valueFactory.rawValue(ident) : valueFactory.infinityValue(0);
+                value = valueFactory.infinityValue(0);
                 type = JSONTokenType.IDENT_FLOAT;
             } else {
                 type = JSONTokenType.IDENT;

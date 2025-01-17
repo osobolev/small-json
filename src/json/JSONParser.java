@@ -154,7 +154,7 @@ public final class JSONParser {
         JSONTokenType type = current.type;
         Object result;
         if (type == JSONTokenType.STRING) {
-            result = current.value;
+            result = current.text;
         } else if (type == JSONTokenType.FLOAT || type == JSONTokenType.INT) {
             result = current.value;
         } else if (type == JSONTokenType.NULL || type == JSONTokenType.TRUE || type == JSONTokenType.FALSE) {

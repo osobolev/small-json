@@ -2,43 +2,6 @@ package json;
 
 public class JSONValueFactory {
 
-    public static final class RawValue implements JSONRawValue {
-
-        public final String string;
-
-        public RawValue(String string) {
-            this.string = string;
-        }
-
-        @Override
-        public int hashCode() {
-            return string.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof RawValue) {
-                RawValue that = (RawValue) obj;
-                return this.string.equals(that.string);
-            } else {
-                return false;
-            }
-        }
-
-        @Override
-        public String toString() {
-            return string;
-        }
-    }
-
-    public Object rawValue(String str) {
-        return new RawValue(str);
-    }
-
-    public Object stringValue(String str) {
-        return str;
-    }
-
     public Object nanValue() {
         return Double.NaN;
     }
