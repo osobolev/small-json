@@ -8,6 +8,10 @@ public enum JSONReadFeature {
      * <p>comments</p>
      */
     JAVA_COMMENTS,
+    /**
+     * If allow extra chars after the end: "[1,2,3]xxx"
+     */
+    EXTRA_CHARS,
 
     /**
      * {@code 'xyzzy' -> "xyzzy"}

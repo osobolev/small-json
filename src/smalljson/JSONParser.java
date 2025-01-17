@@ -18,6 +18,7 @@ public final class JSONParser {
     private final boolean allowMissingValues;
     private final boolean allowTrailingComma;
     private final boolean unquotedFields;
+    private final boolean extraChars;
 
     private JSONToken current;
 
@@ -28,6 +29,7 @@ public final class JSONParser {
         this.allowMissingValues = options.features.contains(JSONReadFeature.ARRAY_MISSING_VALUES);
         this.allowTrailingComma = options.features.contains(JSONReadFeature.TRAILING_COMMA);
         this.unquotedFields = options.features.contains(JSONReadFeature.UNQUOTED_FIELD_NAMES);
+        this.extraChars = options.features.contains(JSONReadFeature.EXTRA_CHARS);
 
         this.current = lexer.nextToken();
     }
@@ -207,7 +209,7 @@ public final class JSONParser {
     }
 
     private void checkEOF() {
-        if (options.checkExtraChars && current.type != JSONTokenType.EOF) {
+        if (!extraChars && current.type != JSONTokenType.EOF) {
             throw new JSONParseException(current, "Extra character at the end");
         }
     }

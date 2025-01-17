@@ -8,20 +8,17 @@ public final class JSONParseOptions {
 
     public final Set<JSONReadFeature> features;
     public final JSONValueFactory valueFactory;
-    public final boolean allowDuplicateKeys;
+    public final boolean allowDuplicateKeys; // todo: move to features
     public final int maxNestingLevel;
-    public final boolean checkExtraChars;
 
     private JSONParseOptions(Set<JSONReadFeature> features,
                              JSONValueFactory valueFactory,
                              boolean allowDuplicateKeys,
-                             int maxNestingLevel,
-                             boolean checkExtraChars) {
+                             int maxNestingLevel) {
         this.features = Collections.unmodifiableSet(features);
         this.valueFactory = valueFactory;
         this.allowDuplicateKeys = allowDuplicateKeys;
         this.maxNestingLevel = maxNestingLevel;
-        this.checkExtraChars = checkExtraChars;
     }
 
     public static Builder builder() {
@@ -34,14 +31,12 @@ public final class JSONParseOptions {
         private JSONValueFactory valueFactory = JSONValueFactory.DEFAULT;
         private boolean allowDuplicateKeys = false;
         private int maxNestingLevel = 512;
-        private boolean checkExtraChars = true;
 
         public Builder copy(JSONParseOptions other) {
             this.features(other.features);
             this.valueFactory(other.valueFactory);
             this.allowDuplicateKeys(other.allowDuplicateKeys);
             this.maxNestingLevel(other.maxNestingLevel);
-            this.checkExtraChars(other.checkExtraChars);
             return this;
         }
 
@@ -76,14 +71,9 @@ public final class JSONParseOptions {
             return this;
         }
 
-        public Builder checkExtraChars(boolean checkExtraChars) {
-            this.checkExtraChars = checkExtraChars;
-            return this;
-        }
-
         public JSONParseOptions build() {
             return new JSONParseOptions(
-                features, valueFactory, allowDuplicateKeys, maxNestingLevel, checkExtraChars
+                features, valueFactory, allowDuplicateKeys, maxNestingLevel
             );
         }
     }
