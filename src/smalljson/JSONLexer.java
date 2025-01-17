@@ -336,7 +336,6 @@ public final class JSONLexer {
                 value = valueFactory.intValue(isign < 0 ? -1 : 1, absNum);
             }
         }
-        // todo: remove INT as we don't know -0 is int or float???
         return new JSONToken(floating ? JSONTokenType.FLOAT : JSONTokenType.INT, null, value, index, line, column);
     }
 
