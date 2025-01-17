@@ -329,11 +329,11 @@ public final class JSONLexer {
         if (isign != 0 && !floating && digits1 == Digits.ONLY_ZERO) {
             value = valueFactory.zeroValue(isign);
         } else {
-            String numStr = isign < 0 ? "-" + buf : buf.toString();
+            String absNum = buf.toString();
             if (floating) {
-                value = valueFactory.floatValue(numStr);
+                value = valueFactory.floatValue(isign < 0 ? "-" + absNum : absNum);
             } else {
-                value = valueFactory.intValue(numStr);
+                value = valueFactory.intValue(isign < 0 ? -1 : 1, absNum);
             }
         }
         // todo: remove INT as we don't know -0 is int or float???

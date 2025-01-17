@@ -24,18 +24,9 @@ public class TestUtil {
         return map;
     }
 
-    private static final JSONValueFactory TEST_FACTORY = new JSONValueFactory() {
-
-        @Override
-        public Object intValue(String str) {
-            return Integer.valueOf(str);
-        }
-    };
-
     public static JSONParseOptions options(JSONReadFeature... features) {
         return JSONParseOptions
             .builder()
-            .valueFactory(TEST_FACTORY)
             .features(features)
             .build();
     }

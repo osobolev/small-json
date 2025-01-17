@@ -163,11 +163,27 @@ public class StructureTests {
     public void testValueFactory() {
         JSONValueFactory valueFactory = new JSONValueFactory() {
             @Override
-            public Object intValue(String str) {
-                return new BigInteger(str);
+            public Object intValue(int sign, String digits) {
+                return new BigInteger(sign < 0 ? "-" + digits : digits);
             }
         };
         JSONParseOptions options = JSONParseOptions.builder().copy(options()).valueFactory(valueFactory).build();
         assertEquals(BigInteger.ONE, new JSONParser(options, "1").parse());
+
+        JSONValueFactory def = JSONValueFactory.DEFAULT;
+
+        assertEquals(0, def.intValue(1, "0"));
+        // Border between int and long (on side of int):
+        assertEquals(Integer.MAX_VALUE, def.intValue(1, String.valueOf(Integer.MAX_VALUE)));
+        assertEquals(Integer.MIN_VALUE, def.intValue(-1, String.valueOf(Integer.MIN_VALUE).substring(1)));
+        // Border between int and long (on side of long):
+        assertEquals(Integer.MAX_VALUE + 1L, def.intValue(1, String.valueOf(Integer.MAX_VALUE + 1L)));
+        assertEquals(Integer.MIN_VALUE - 1L, def.intValue(-1, String.valueOf(Integer.MIN_VALUE - 1L).substring(1)));
+        // Border between long and BigInteger (on side of long):
+        assertEquals(Long.MAX_VALUE, def.intValue(1, String.valueOf(Long.MAX_VALUE)));
+        assertEquals(Long.MIN_VALUE, def.intValue(-1, String.valueOf(Long.MIN_VALUE).substring(1)));
+        // Border between long and BigInteger (on side of BigInteger):
+        assertEquals(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE), def.intValue(1, BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE).toString()));
+        assertEquals(BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.ONE), def.intValue(-1, BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.ONE).toString().substring(1)));
     }
 }
