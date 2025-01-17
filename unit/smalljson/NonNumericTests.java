@@ -4,8 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static smalljson.ObjUtil.list;
-import static smalljson.ObjUtil.map;
+import static smalljson.TestUtil.*;
 
 public class NonNumericTests {
 
@@ -17,15 +16,6 @@ public class NonNumericTests {
         Double.NaN, Double.NaN,
         Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY
     };
-
-    private static Object parse(String json, JSONReadFeature... features) {
-        JSONParseOptions options = JSONParseOptions
-            .builder()
-            .features(features)
-            .build();
-        JSONParser parser = new JSONParser(options, json);
-        return parser.parse();
-    }
 
     @Test
     public void testUnsignedNanValues() {
