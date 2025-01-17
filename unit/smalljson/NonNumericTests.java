@@ -19,6 +19,10 @@ public class NonNumericTests {
 
     @Test
     public void testUnsignedNanValues() {
+        assertThrows(
+            JSONParseException.class,
+            () -> parse("{ \"value\": YesItsANumber }", JSONReadFeature.NAN_INF_NUMBERS)
+        );
         for (int i = 0; i < NANS.length; i++) {
             String nan = NANS[i];
             double value = NAN_VALUES[i];
@@ -46,6 +50,10 @@ public class NonNumericTests {
 
     @Test
     public void testMinusNanValues() {
+        assertThrows(
+            JSONParseException.class,
+            () -> parse("{ \"value\": -YesItsANumber }", JSONReadFeature.NAN_INF_NUMBERS)
+        );
         for (int i = 0; i < NANS.length; i++) {
             String nan = NANS[i];
             double value = NAN_VALUES[i];
@@ -87,6 +95,10 @@ public class NonNumericTests {
 
     @Test
     public void testPlusNanValues() {
+        assertThrows(
+            JSONParseException.class,
+            () -> parse("{ \"value\": +YesItsANumber }", JSONReadFeature.NAN_INF_NUMBERS, JSONReadFeature.LEADING_PLUS_SIGN)
+        );
         for (int i = 0; i < NANS.length; i++) {
             String nan = NANS[i];
             double value = NAN_VALUES[i];
