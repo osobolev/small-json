@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.math.BigInteger;
 
@@ -31,6 +32,10 @@ public class StructureTests {
         assertThrows(JSONParseException.class, () -> parse("/* end", JSONReadFeature.JAVA_COMMENTS));
     }
 
+    private static JSONParser rawParser(String json) {
+        return new JSONParser(options(), new StringReader(json));
+    }
+
     @Test
     public void testLexerError() {
         String examples = "~@#%^&()+-*/|.<>?!;\\=`";
@@ -39,15 +44,13 @@ public class StructureTests {
             assertThrows(JSONParseException.class, () -> parse(String.valueOf(ch)));
         }
 
-        assertEquals(JSONTokenType.LCURLY, parser("{}").getCurrent().type);
-        assertDoesNotThrow(() -> parser("{}").getCurrent().toString());
-        assertDoesNotThrow(() -> parser("true").getCurrent().toString());
+        assertEquals(JSONTokenType.LCURLY, rawParser("{}").getCurrent().type);
+        assertDoesNotThrow(() -> rawParser("{}").getCurrent().toString());
+        assertDoesNotThrow(() -> rawParser("true").getCurrent().toString());
 
         assertThrows(
             UncheckedIOException.class,
-            () -> new JSONParser(
-                options(),
-                new InputStream() {
+            () -> parser().parse(new InputStream() {
                     @Override
                     public int read() throws IOException {
                         throw new IOException("Fail");
@@ -104,49 +107,49 @@ public class StructureTests {
 
     @Test
     public void testNestingLevels() {
-        JSONParseOptions options0 = JSONParseOptions.builder().copy(options()).maxNestingLevel(0).build();
-        new JSONParser(options0, "0").parse();
+        JSON options0 = optBuilder().maxNestingLevel(0).build();
+        options0.parse("0");
 
-        assertThrows(JSONParseException.class, () -> new JSONParser(options0, "[]").parse());
-        assertThrows(JSONParseException.class, () -> new JSONParser(options0, "{}").parse());
+        assertThrows(JSONParseException.class, () -> options0.parse("[]"));
+        assertThrows(JSONParseException.class, () -> options0.parse("{}"));
 
-        JSONParseOptions options1 = JSONParseOptions.builder().copy(options()).maxNestingLevel(1).build();
-        new JSONParser(options1, "0").parse();
-        new JSONParser(options1, "[]").parse();
-        new JSONParser(options1, "[1]").parse();
-        new JSONParser(options1, "{}").parse();
-        new JSONParser(options1, "{\"x\":1}").parse();
+        JSON options1 = optBuilder().maxNestingLevel(1).build();
+        options1.parse("0");
+        options1.parse("[]");
+        options1.parse("[1]");
+        options1.parse("{}");
+        options1.parse("{\"x\":1}");
 
-        assertThrows(JSONParseException.class, () -> new JSONParser(options1, "[[]]").parse());
-        assertThrows(JSONParseException.class, () -> new JSONParser(options1, "[{}]").parse());
+        assertThrows(JSONParseException.class, () -> options1.parse("[[]]"));
+        assertThrows(JSONParseException.class, () -> options1.parse("[{}]"));
 
-        JSONParseOptions options2 = JSONParseOptions.builder().copy(options()).maxNestingLevel(2).build();
-        new JSONParser(options2, "0").parse();
-        new JSONParser(options2, "[]").parse();
-        new JSONParser(options2, "[]").parseArray();
-        new JSONParser(options2, "[[]]").parse();
-        new JSONParser(options2, "[[]]").parseArray();
-        new JSONParser(options2, "[[1]]").parse();
-        new JSONParser(options2, "[[1]]").parseArray();
-        new JSONParser(options2, "{}").parse();
-        new JSONParser(options2, "{}").parseObject();
-        new JSONParser(options2, "[{}]").parse();
-        new JSONParser(options2, "[{}]").parseArray();
-        new JSONParser(options2, "[{\"x\":1}]").parse();
-        new JSONParser(options2, "[{\"x\":1}]").parseArray();
-        new JSONParser(options2, "{\"x\":[]}").parse();
-        new JSONParser(options2, "{\"x\":[]}").parseObject();
+        JSON options2 = optBuilder().maxNestingLevel(2).build();
+        options2.parse("0");
+        options2.parse("[]");
+        options2.parseArray("[]");
+        options2.parse("[[]]");
+        options2.parseArray("[[]]");
+        options2.parse("[[1]]");
+        options2.parseArray("[[1]]");
+        options2.parse("{}");
+        options2.parseObject("{}");
+        options2.parse("[{}]");
+        options2.parseArray("[{}]");
+        options2.parse("[{\"x\":1}]");
+        options2.parseArray("[{\"x\":1}]");
+        options2.parse("{\"x\":[]}");
+        options2.parseObject("{\"x\":[]}");
 
-        assertThrows(JSONParseException.class, () -> new JSONParser(options2, "[[[]]]").parse());
-        assertThrows(JSONParseException.class, () -> new JSONParser(options2, "[[[]]]").parseArray());
-        assertThrows(JSONParseException.class, () -> new JSONParser(options2, "[[{}]]").parse());
-        assertThrows(JSONParseException.class, () -> new JSONParser(options2, "[[{}]]").parseArray());
-        assertThrows(JSONParseException.class, () -> new JSONParser(options2, "[{\"x\":[]}]").parse());
-        assertThrows(JSONParseException.class, () -> new JSONParser(options2, "[{\"x\":[]}]").parseArray());
-        assertThrows(JSONParseException.class, () -> new JSONParser(options2, "[{\"x\":{}}]").parse());
-        assertThrows(JSONParseException.class, () -> new JSONParser(options2, "[{\"x\":{}}]").parseArray());
-        assertThrows(JSONParseException.class, () -> new JSONParser(options2, "{\"x\":[{}]}").parse());
-        assertThrows(JSONParseException.class, () -> new JSONParser(options2, "{\"x\":[{}]}").parseObject());
+        assertThrows(JSONParseException.class, () -> options2.parse("[[[]]]"));
+        assertThrows(JSONParseException.class, () -> options2.parseArray("[[[]]]"));
+        assertThrows(JSONParseException.class, () -> options2.parse("[[{}]]"));
+        assertThrows(JSONParseException.class, () -> options2.parseArray("[[{}]]"));
+        assertThrows(JSONParseException.class, () -> options2.parse("[{\"x\":[]}]"));
+        assertThrows(JSONParseException.class, () -> options2.parseArray("[{\"x\":[]}]"));
+        assertThrows(JSONParseException.class, () -> options2.parse("[{\"x\":{}}]"));
+        assertThrows(JSONParseException.class, () -> options2.parseArray("[{\"x\":{}}]"));
+        assertThrows(JSONParseException.class, () -> options2.parse("{\"x\":[{}]}"));
+        assertThrows(JSONParseException.class, () -> options2.parseObject("{\"x\":[{}]}"));
     }
 
     @Test
@@ -155,35 +158,26 @@ public class StructureTests {
         assertThrows(JSONParseException.class, () -> parse("[{]}"));
         assertThrows(JSONParseException.class, () -> parse("{1,2}"));
         assertThrows(JSONParseException.class, () -> parse("[\"x\":1]"));
-        assertThrows(JSONParseException.class, () -> parser("{}").parseArray());
-        assertThrows(JSONParseException.class, () -> parser("[]").parseObject());
+        assertThrows(JSONParseException.class, () -> parser().parseArray("{}"));
+        assertThrows(JSONParseException.class, () -> parser().parseObject("[]"));
     }
 
     @Test
     public void testValueFactory() {
-        JSONValueFactory valueFactory = new JSONValueFactory() {
-            @Override
-            public Object intValue(int sign, String digits) {
-                return bigIntegerValue(sign, digits);
-            }
-        };
-        JSONParseOptions options = JSONParseOptions.builder().copy(options()).valueFactory(valueFactory).build();
-        assertEquals(BigInteger.ONE, new JSONParser(options, "1").parse());
+        JSONValueFactory fact = JSONValueFactory.DEFAULT;
 
-        JSONValueFactory def = JSONValueFactory.DEFAULT;
-
-        assertEquals(0, def.intValue(1, "0"));
+        assertEquals(0, fact.intValue(1, "0"));
         // Border between int and long (on side of int):
-        assertEquals(Integer.MAX_VALUE, def.intValue(1, String.valueOf(Integer.MAX_VALUE)));
-        assertEquals(Integer.MIN_VALUE, def.intValue(-1, String.valueOf(Integer.MIN_VALUE).substring(1)));
+        assertEquals(Integer.MAX_VALUE, fact.intValue(1, String.valueOf(Integer.MAX_VALUE)));
+        assertEquals(Integer.MIN_VALUE, fact.intValue(-1, String.valueOf(Integer.MIN_VALUE).substring(1)));
         // Border between int and long (on side of long):
-        assertEquals(Integer.MAX_VALUE + 1L, def.intValue(1, String.valueOf(Integer.MAX_VALUE + 1L)));
-        assertEquals(Integer.MIN_VALUE - 1L, def.intValue(-1, String.valueOf(Integer.MIN_VALUE - 1L).substring(1)));
+        assertEquals(Integer.MAX_VALUE + 1L, fact.intValue(1, String.valueOf(Integer.MAX_VALUE + 1L)));
+        assertEquals(Integer.MIN_VALUE - 1L, fact.intValue(-1, String.valueOf(Integer.MIN_VALUE - 1L).substring(1)));
         // Border between long and BigInteger (on side of long):
-        assertEquals(Long.MAX_VALUE, def.intValue(1, String.valueOf(Long.MAX_VALUE)));
-        assertEquals(Long.MIN_VALUE, def.intValue(-1, String.valueOf(Long.MIN_VALUE).substring(1)));
+        assertEquals(Long.MAX_VALUE, fact.intValue(1, String.valueOf(Long.MAX_VALUE)));
+        assertEquals(Long.MIN_VALUE, fact.intValue(-1, String.valueOf(Long.MIN_VALUE).substring(1)));
         // Border between long and BigInteger (on side of BigInteger):
-        assertEquals(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE), def.intValue(1, BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE).toString()));
-        assertEquals(BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.ONE), def.intValue(-1, BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.ONE).toString().substring(1)));
+        assertEquals(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE), fact.intValue(1, BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE).toString()));
+        assertEquals(BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.ONE), fact.intValue(-1, BigInteger.valueOf(Long.MIN_VALUE).subtract(BigInteger.ONE).toString().substring(1)));
     }
 }

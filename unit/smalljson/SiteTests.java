@@ -11,17 +11,17 @@ public class SiteTests {
 
     @Test
     public void runJsonSiteTests() throws IOException {
-        JSONParseOptions options = SiteUtil.siteOptions();
+        JSON options = SiteUtil.siteOptions();
         SiteUtil.scanSiteTests((name, failing, is) -> {
             if (failing) {
                 assertThrows(
                     JSONParseException.class,
-                    () -> new JSONParser(options, is).parse(),
+                    () -> options.parse(is),
                     name
                 );
             } else {
                 assertDoesNotThrow(
-                    () -> new JSONParser(options, is).parse(),
+                    () -> options.parse(is),
                     name
                 );
             }

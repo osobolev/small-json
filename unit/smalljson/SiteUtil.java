@@ -6,7 +6,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static smalljson.TestUtil.options;
+import static smalljson.TestUtil.optBuilder;
 
 /**
  * <a href="https://www.json.org/JSON_checker">Test suite</a> utility
@@ -18,12 +18,12 @@ public class SiteUtil {
         void consume(String name, boolean failing, InputStream is);
     }
 
-    public static JSONParseOptions siteOptions() {
-        return JSONParseOptions.builder().copy(options()).maxNestingLevel(19).build();
+    public static JSON siteOptions() {
+        return optBuilder().maxNestingLevel(19).build();
     }
 
     public static void scanSiteTests(TestConsumer consumer) throws IOException {
-        try (InputStream is = SiteUtil.class.getResourceAsStream("/test.zip");) {
+        try (InputStream is = SiteUtil.class.getResourceAsStream("/test.zip")) {
             assertNotNull(is);
             try (ZipInputStream zis = new ZipInputStream(is)) {
                 while (true) {

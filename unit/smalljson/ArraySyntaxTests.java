@@ -14,7 +14,7 @@ public class ArraySyntaxTests {
         assertEquals(list(list()), parse("[[]]"));
         assertEquals(list(1, true, "abba"), parse("[1, true, \"abba\"]"));
         assertEquals(list(null, list(list(5, list(1, 7, 8), 6), 3)), parse("[null, [[5, [1, 7, 8], 6], 3]]"));
-        assertEquals(list(null, list(list(5, list(1, 7, 8), 6), 3)), parser("[null, [[5, [1, 7, 8], 6], 3]]").parseArray());
+        assertEquals(list(null, list(list(5, list(1, 7, 8), 6), 3)), parser().parseArray("[null, [[5, [1, 7, 8], 6], 3]]"));
 
         assertThrows(
             JSONParseException.class,

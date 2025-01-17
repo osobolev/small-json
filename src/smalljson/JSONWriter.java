@@ -10,6 +10,11 @@ public final class JSONWriter {
 
     public static final String DEFAULT_INDENT = "    ";
 
+    public interface RawValue {
+
+        String rawJsonOutput();
+    }
+
     private final PrintWriter pw;
     private final String indent;
     private final String space;
@@ -147,8 +152,8 @@ public final class JSONWriter {
         } else if (obj instanceof Number) {
             Number num = (Number) obj;
             print(num.toString());
-        } else if (obj instanceof JSONRawValue) {
-            JSONRawValue raw = (JSONRawValue) obj;
+        } else if (obj instanceof RawValue) {
+            RawValue raw = (RawValue) obj;
             print(raw.rawJsonOutput());
         } else {
             print("\"" + escape(obj.toString()) + "\"");

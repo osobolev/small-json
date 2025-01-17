@@ -1,6 +1,10 @@
 package smalljson;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class JSONValueFactory {
 
@@ -51,5 +55,13 @@ public class JSONValueFactory {
 
     public Object nullValue() {
         return null;
+    }
+
+    public Map<String, Object> objectValue() {
+        return new LinkedHashMap<>();
+    }
+
+    public List<Object> arrayValue() {
+        return new ArrayList<>();
     }
 }

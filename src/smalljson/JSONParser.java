@@ -1,12 +1,6 @@
 package smalljson;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,14 +30,6 @@ public final class JSONParser {
         this.current = lexer.nextToken();
     }
 
-    public JSONParser(JSONParseOptions options, InputStream is) {
-        this(options, new InputStreamReader(is, StandardCharsets.UTF_8));
-    }
-
-    public JSONParser(JSONParseOptions options, String json) {
-        this(options, new StringReader(json));
-    }
-
     public void next() {
         current = lexer.nextToken();
     }
@@ -70,10 +56,10 @@ public final class JSONParser {
         START, COMMA, VALUE
     }
 
-    private Map<String, Object> parseObject(int nestingLevel) {
+    private JSONObject parseObject(int nestingLevel) {
         checkNestingLevel(nestingLevel);
         require(JSONTokenType.LCURLY, "Object must start with '{'");
-        Map<String, Object> object = new LinkedHashMap<>();
+        Map<String, Object> object = options.valueFactory.objectValue();
         PrevState prev = PrevState.START;
         while (true) {
             JSONTokenType type = current.type;
@@ -116,19 +102,19 @@ public final class JSONParser {
                 prev = PrevState.VALUE;
             }
         }
-        return object;
+        return new JSONObject(object);
     }
 
-    public Map<String, Object> parseObject() {
-        Map<String, Object> result = parseObject(1);
+    public JSONObject parseObject() {
+        JSONObject result = parseObject(1);
         checkEOF();
         return result;
     }
 
-    private List<Object> parseArray(int nestingLevel) {
+    private JSONArray parseArray(int nestingLevel) {
         checkNestingLevel(nestingLevel);
         require(JSONTokenType.LSQUARE, "Array must start with '['");
-        List<Object> array = new ArrayList<>();
+        List<Object> array = options.valueFactory.arrayValue();
         PrevState prev = PrevState.START;
         while (true) {
             JSONTokenType type = current.type;
@@ -163,11 +149,11 @@ public final class JSONParser {
                 prev = PrevState.VALUE;
             }
         }
-        return array;
+        return new JSONArray(array);
     }
 
-    public List<Object> parseArray() {
-        List<Object> result = parseArray(1);
+    public JSONArray parseArray() {
+        JSONArray result = parseArray(1);
         checkEOF();
         return result;
     }

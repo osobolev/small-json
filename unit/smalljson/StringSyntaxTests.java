@@ -23,6 +23,8 @@ public class StringSyntaxTests {
         assertEquals("\u0123\u4567\u89AB\uCDEF\uabcd\uef4A", parse("\"\\u0123\\u4567\\u89AB\\uCDEF\\uabcd\\uef4A\""));
         assertEquals("\uD83C\uDF55", parse("\"\uD83C\uDF55\""));
         assertEquals("\uD83C\uDF55", parse("\"\\uD83C\\uDF55\""));
+        assertEquals("A0", parse("\"\\u00410\""));
+        assertEquals("Ax", parse("\"\\u0041x\""));
 
         assertThrows(JSONParseException.class, () -> parse("\"\\"));
         assertThrows(JSONParseException.class, () -> parse("\"end"));

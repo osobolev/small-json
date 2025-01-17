@@ -4,7 +4,7 @@ import java.util.*;
 
 public final class JSONParseOptions {
 
-    public static final JSONParseOptions DEFAULT = builder().build();
+    public static final JSONParseOptions DEFAULT = builder().buildOptions();
 
     public final Set<JSONReadFeature> features;
     public final JSONValueFactory valueFactory;
@@ -29,23 +29,40 @@ public final class JSONParseOptions {
         private int maxNestingLevel = 512;
 
         public Builder copy(JSONParseOptions other) {
-            this.features(other.features);
+            this.setFeatures(other.features);
             this.valueFactory(other.valueFactory);
             this.maxNestingLevel(other.maxNestingLevel);
             return this;
         }
 
-        public Builder features(Collection<JSONReadFeature> features) {
+        /**
+         * Replaces existing features
+         */
+        public Builder setFeatures(Collection<JSONReadFeature> features) {
             this.features.clear();
             this.features.addAll(features);
             return this;
         }
 
-        public Builder features(JSONReadFeature... features) {
-            this.features.addAll(Arrays.asList(features));
+        /**
+         * Adds new features
+         */
+        public Builder addFeatures(Collection<JSONReadFeature> features) {
+            this.features.addAll(features);
             return this;
         }
 
+        /**
+         * Adds new features
+         */
+        public Builder addFeatures(JSONReadFeature... features) {
+            addFeatures(Arrays.asList(features));
+            return this;
+        }
+
+        /**
+         * Adds new feature
+         */
         public Builder feature(JSONReadFeature feature) {
             this.features.add(feature);
             return this;
@@ -61,8 +78,12 @@ public final class JSONParseOptions {
             return this;
         }
 
-        public JSONParseOptions build() {
+        public JSONParseOptions buildOptions() {
             return new JSONParseOptions(features, valueFactory, maxNestingLevel);
+        }
+
+        public JSON build() {
+            return new JSON(buildOptions());
         }
     }
 }

@@ -23,11 +23,11 @@ public class WriterTests {
     @ParameterizedTest
     @ValueSource(ints = {0, 1, -1})
     public void testWriter(int indent) throws IOException {
-        JSONParseOptions options = SiteUtil.siteOptions();
+        JSON options = SiteUtil.siteOptions();
         SiteUtil.scanSiteTests((name, failing, is) -> {
             if (failing)
                 return;
-            Object origObj = new JSONParser(options, is).parse();
+            Object origObj = options.parse(is);
             String json1 = toString(origObj, indent);
 
             Object newObj = parse(json1);
@@ -46,7 +46,7 @@ public class WriterTests {
 
     @Test
     public void testRaw() {
-        JSONRawValue raw = () -> "xyzzy";
+        JSONWriter.RawValue raw = () -> "xyzzy";
         assertEquals("xyzzy", JSONWriter.toString(raw, ""));
     }
 }
