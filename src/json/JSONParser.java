@@ -1,6 +1,10 @@
 package json;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,16 +18,18 @@ public final class JSONParser {
     private final boolean allowMissingValues;
     private final boolean allowTrailingComma;
     private final boolean unquotedFields;
+    private final boolean checkExtraChars;
 
     private JSONToken current;
 
-    public JSONParser(JSONParseOptions options, Reader rdr) {
+    public JSONParser(JSONParseOptions options, boolean checkExtraChars, Reader rdr) {
         this.lexer = new JSONLexer(options, rdr);
         this.options = options;
         this.specialNumbers = options.features.contains(JSONReadFeature.NAN_INF_NUMBERS);
         this.allowMissingValues = options.features.contains(JSONReadFeature.ARRAY_MISSING_VALUES);
         this.allowTrailingComma = options.features.contains(JSONReadFeature.TRAILING_COMMA);
         this.unquotedFields = options.features.contains(JSONReadFeature.UNQUOTED_FIELD_NAMES);
+        this.checkExtraChars = checkExtraChars;
 
         this.current = lexer.nextToken();
     }
@@ -104,7 +110,9 @@ public final class JSONParser {
     }
 
     public Map<String, Object> parseObject() {
-        return parseObject(1);
+        Map<String, Object> result = parseObject(1);
+        checkEOF();
+        return result;
     }
 
     private List<Object> parseArray(int nestingLevel) {
@@ -149,7 +157,9 @@ public final class JSONParser {
     }
 
     public List<Object> parseArray() {
-        return parseArray(1);
+        List<Object> result = parseArray(1);
+        checkEOF();
+        return result;
     }
 
     public Object parsePrimitive() {
@@ -185,6 +195,46 @@ public final class JSONParser {
     }
 
     public Object parse() {
-        return parse(0);
+        Object result = parse(0);
+        checkEOF();
+        return result;
+    }
+
+    private void checkEOF() {
+        if (checkExtraChars && current.type != JSONTokenType.EOF) {
+            throw new JSONParseException(current, "Extra character at the end");
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+
+        private JSONParseOptions options = null;
+        private boolean checkExtraChars = true;
+
+        public Builder options(JSONParseOptions options) {
+            this.options = options;
+            return this;
+        }
+
+        public Builder checkExtraChars(boolean checkExtraChars) {
+            this.checkExtraChars = checkExtraChars;
+            return this;
+        }
+
+        public JSONParser build(Reader rdr) {
+            return new JSONParser(options == null ? new JSONParseOptions() : options, checkExtraChars, rdr);
+        }
+
+        public JSONParser build(InputStream is) {
+            return build(new InputStreamReader(is, StandardCharsets.UTF_8));
+        }
+
+        public JSONParser build(String json) {
+            return build(new StringReader(json));
+        }
     }
 }
