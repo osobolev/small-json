@@ -24,6 +24,7 @@ public class StringSyntaxTests {
         assertEquals("\uD83C\uDF55", parse("\"\uD83C\uDF55\""));
         assertEquals("\uD83C\uDF55", parse("\"\\uD83C\\uDF55\""));
 
+        assertThrows(JSONParseException.class, () -> parse("\"\\"));
         assertThrows(JSONParseException.class, () -> parse("\"end"));
         assertThrows(JSONParseException.class, () -> parse("\"\uD83C\""));
         assertThrows(JSONParseException.class, () -> parse("\"\uD83C"));
