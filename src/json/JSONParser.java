@@ -157,12 +157,12 @@ public final class JSONParser {
             result = current.text;
         } else if (type == JSONTokenType.FLOAT || type == JSONTokenType.INT) {
             result = current.value;
+        } else if (type == JSONTokenType.NULL || type == JSONTokenType.TRUE || type == JSONTokenType.FALSE) {
+            result = current.value;
         } else if (type == JSONTokenType.IDENT_FLOAT) {
             if (!specialNumbers) {
                 throw new JSONParseException(current, "Use of non-numeric floating point numbers not allowed");
             }
-            result = current.value;
-        } else if (type == JSONTokenType.NULL || type == JSONTokenType.TRUE || type == JSONTokenType.FALSE) {
             result = current.value;
         } else {
             throw new JSONParseException(current, "Unexpected token " + current.type);
