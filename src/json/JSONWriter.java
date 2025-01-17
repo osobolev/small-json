@@ -82,10 +82,12 @@ public final class JSONWriter {
                 buf.append('\\').append(ch);
                 continue;
             } else {
-                if (ch < ' ') {
+                if (ch < ' ' // control characters
+                    || (ch >= 0x7F && ch < 0xC0) // part of Latin-1 Supplement
+                    || ch >= 0x1C80 // most languages end here
+                ) {
                     unicodeEscape(buf, ch);
                 } else {
-                    // todo: unicode escape some extra-special characters???
                     buf.append(ch);
                 }
                 continue;
