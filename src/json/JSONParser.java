@@ -17,8 +17,8 @@ public final class JSONParser {
 
     private JSONToken current;
 
-    public JSONParser(JSONParseOptions options, JSONLexer lexer) {
-        this.lexer = lexer;
+    public JSONParser(JSONParseOptions options, Reader rdr) {
+        this.lexer = new JSONLexer(options, rdr);
         this.options = options;
         this.specialNumbers = options.features.contains(JSONReadFeature.NAN_INF_NUMBERS);
         this.allowMissingValues = options.features.contains(JSONReadFeature.ARRAY_MISSING_VALUES);
@@ -26,10 +26,6 @@ public final class JSONParser {
         this.unquotedFields = options.features.contains(JSONReadFeature.UNQUOTED_FIELD_NAMES);
 
         this.current = lexer.nextToken();
-    }
-
-    public JSONParser(JSONParseOptions options, Reader rdr) {
-        this(options, new JSONLexer(options, rdr));
     }
 
     private void next() {
