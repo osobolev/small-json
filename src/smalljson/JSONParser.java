@@ -196,7 +196,7 @@ public final class JSONParser {
         return result;
     }
 
-    private void checkEOF() {
+    public void checkEOF() {
         if (!extraChars && current.type != JSONTokenType.EOF) {
             throw new JSONParseException(current, "Extra character at the end");
         }
