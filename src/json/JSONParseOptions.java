@@ -9,4 +9,5 @@ public class JSONParseOptions {
     public JSONValueFactory valueFactory = new JSONValueFactory();
     public boolean keepStrings = false;
     public boolean allowDuplicateKeys = false;
+    public int maxNestingLevel = 512;
 }

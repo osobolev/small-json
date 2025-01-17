@@ -44,12 +44,18 @@ public final class JSONParser {
         }
     }
 
+    private void checkNestingLevel(int nestingLevel) {
+        if (options.maxNestingLevel >= 0 && nestingLevel > options.maxNestingLevel) {
+            throw new JSONParseException(current, "Maximum nesting level " + options.maxNestingLevel + " reached");
+        }
+    }
+
     private enum PrevState {
         START, COMMA, VALUE
     }
 
-    // todo: control nesting level
-    public Map<String, Object> parseObject() {
+    private Map<String, Object> parseObject(int nestingLevel) {
+        checkNestingLevel(nestingLevel);
         require(JSONTokenType.LCURLY, "Object must start with '{'");
         Map<String, Object> object = new LinkedHashMap<>();
         PrevState prev = PrevState.START;
@@ -87,7 +93,7 @@ public final class JSONParser {
                     throw new JSONParseException(current, "Expected field name but found " + type);
                 }
                 require(JSONTokenType.COLON, "Expected colon after key");
-                Object value = parse();
+                Object value = parse(nestingLevel);
                 object.put(key, value);
                 prev = PrevState.VALUE;
             }
@@ -95,7 +101,12 @@ public final class JSONParser {
         return object;
     }
 
-    public List<Object> parseArray() {
+    public Map<String, Object> parseObject() {
+        return parseObject(1);
+    }
+
+    private List<Object> parseArray(int nestingLevel) {
+        checkNestingLevel(nestingLevel);
         require(JSONTokenType.LSQUARE, "Array must start with '['");
         List<Object> array = new ArrayList<>();
         PrevState prev = PrevState.START;
@@ -127,12 +138,16 @@ public final class JSONParser {
                 if (prev == PrevState.VALUE) {
                     throw new JSONParseException(current, "Missing comma in array");
                 }
-                Object value = parse();
+                Object value = parse(nestingLevel);
                 array.add(value);
                 prev = PrevState.VALUE;
             }
         }
         return array;
+    }
+
+    public List<Object> parseArray() {
+        return parseArray(1);
     }
 
     public Object parsePrimitive() {
@@ -156,14 +171,18 @@ public final class JSONParser {
         return result;
     }
 
-    public Object parse() {
+    private Object parse(int nestingLevel) {
         JSONTokenType type = current.type;
         if (type == JSONTokenType.LCURLY) {
-            return parseObject();
+            return parseObject(nestingLevel + 1);
         } else if (type == JSONTokenType.LSQUARE) {
-            return parseArray();
+            return parseArray(nestingLevel + 1);
         } else {
             return parsePrimitive();
         }
+    }
+
+    public Object parse() {
+        return parse(0);
     }
 }
