@@ -80,7 +80,9 @@ public final class JSONParser {
                     throw new JSONParseException(current, "Missing comma in object");
                 }
                 String key;
-                if (type == JSONTokenType.STRING || type == JSONTokenType.IDENT || type == JSONTokenType.IDENT_FLOAT) {
+                if (type == JSONTokenType.STRING || type == JSONTokenType.IDENT ||
+                    type == JSONTokenType.TRUE || type == JSONTokenType.FALSE || type == JSONTokenType.NULL ||
+                    type == JSONTokenType.IDENT_FLOAT) {
                     if (!unquotedFields && type != JSONTokenType.STRING) {
                         throw new JSONParseException(current, "Unquoted field names are not allowed");
                     }
