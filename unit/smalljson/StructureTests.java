@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.math.BigInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static smalljson.TestUtil.*;
@@ -39,6 +40,8 @@ public class StructureTests {
         }
 
         assertEquals(JSONTokenType.LCURLY, parser("{}").getCurrent().type);
+        assertDoesNotThrow(() -> parser("{}").getCurrent().toString());
+        assertDoesNotThrow(() -> parser("true").getCurrent().toString());
 
         assertThrows(
             UncheckedIOException.class,
@@ -144,6 +147,25 @@ public class StructureTests {
         assertThrows(JSONParseException.class, () -> new JSONParser(options2, "{\"x\":[{}]}").parseObject());
     }
 
-    // todo: bad structure (parser error)
-    // todo: arrays inside objects inside arrays...
+    @Test
+    public void testBadNesting() {
+        assertThrows(JSONParseException.class, () -> parse("{[}]"));
+        assertThrows(JSONParseException.class, () -> parse("[{]}"));
+        assertThrows(JSONParseException.class, () -> parse("{1,2}"));
+        assertThrows(JSONParseException.class, () -> parse("[\"x\":1]"));
+        assertThrows(JSONParseException.class, () -> parser("{}").parseArray());
+        assertThrows(JSONParseException.class, () -> parser("[]").parseObject());
+    }
+
+    @Test
+    public void testValueFactory() {
+        JSONValueFactory valueFactory = new JSONValueFactory() {
+            @Override
+            public Object intValue(String str) {
+                return new BigInteger(str);
+            }
+        };
+        JSONParseOptions options = JSONParseOptions.builder().copy(options()).valueFactory(valueFactory).build();
+        assertEquals(BigInteger.ONE, new JSONParser(options, "1").parse());
+    }
 }
