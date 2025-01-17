@@ -2,6 +2,8 @@ package json;
 
 public class JSONValueFactory {
 
+    public static final JSONValueFactory DEFAULT = new JSONValueFactory();
+
     public Object nanValue() {
         return Double.NaN;
     }
