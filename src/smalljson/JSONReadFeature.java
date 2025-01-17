@@ -8,34 +8,26 @@ public enum JSONReadFeature {
      * <p>comments</p>
      */
     JAVA_COMMENTS,
+
+    /**
+     * {@code 'xyzzy' -> "xyzzy"}
+     */
+    SINGLE_QUOTES,
     /**
      * "\x" -> "x" (ignore unsupported characters);
      * "&bsol;u41" -> "A" (allow unicode number be less than 4 hex digits)
      */
     INVALID_ESCAPES,
     /**
-     * {@code 'xyzzy' -> "xyzzy"}
-     */
-    SINGLE_QUOTES,
-    /**
      * Characters with code less than 32 can occur in string without escaping
      */
     STRING_CONTROL_CHARS,
+
     /**
-     * {@code { x: "value" } -> { "x": "value: }}
+     * Recognize {@code true/false/null} ignoring case
      */
-    UNQUOTED_FIELD_NAMES,
-    /**
-     * {@code [1,,,2,] -> [1,null,null,2,null]}
-     */
-    ARRAY_MISSING_VALUES,
-    /**
-     * {@code { "x": "value", } -> { "x": "value" }}
-     * {@code [1,2,] -> [1,2]}
-     * <br>
-     * Takes priority over {@link #ARRAY_MISSING_VALUES} if both are present.
-     */
-    TRAILING_COMMA,
+    CASE_INSENSITIVE,
+
     /**
      * Recognize following numeric values (case-insensitive):
      * {@code NaN,
@@ -44,10 +36,6 @@ public enum JSONReadFeature {
      * -Infinity, -inf}
      */
     NAN_INF_NUMBERS,
-    /**
-     * Recognize {@code true/false/null} ignoring case
-     */
-    CASE_INSENSITIVE,
     /**
      * {@code +123 -> 123}
      */
@@ -63,5 +51,21 @@ public enum JSONReadFeature {
     /**
      * {@code 123. -> 123.0}
      */
-    TRAILING_DECIMAL_POINT
+    TRAILING_DECIMAL_POINT,
+
+    /**
+     * {@code { x: "value" } -> { "x": "value: }}
+     */
+    UNQUOTED_FIELD_NAMES,
+    /**
+     * {@code { "x": "value", } -> { "x": "value" }}
+     * {@code [1,2,] -> [1,2]}
+     * <br>
+     * Takes priority over {@link #ARRAY_MISSING_VALUES} if both are present.
+     */
+    TRAILING_COMMA,
+    /**
+     * {@code [1,,,2,] -> [1,null,null,2,null]}
+     */
+    ARRAY_MISSING_VALUES
 }
