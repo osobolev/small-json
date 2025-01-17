@@ -20,6 +20,14 @@ public class ArraySyntaxTests {
             JSONParseException.class,
             () -> parse("[1 2]")
         );
+        assertThrows(
+            JSONParseException.class,
+            () -> parse("[1")
+        );
+        assertThrows(
+            JSONParseException.class,
+            () -> parse("[1, ")
+        );
     }
 
     @Test
