@@ -2,5 +2,5 @@ package json;
 
 public interface JSONRawValue {
 
-    String toString();
+    String rawJsonOutput();
 }

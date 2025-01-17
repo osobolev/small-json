@@ -134,7 +134,7 @@ public final class JSONWriter {
             print(num.toString());
         } else if (obj instanceof JSONRawValue) {
             JSONRawValue raw = (JSONRawValue) obj;
-            print(raw.toString());
+            print(raw.rawJsonOutput());
         } else {
             print("\"" + escape(obj.toString()) + "\"");
         }
