@@ -3,6 +3,7 @@ package smalljson;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -58,8 +59,30 @@ public final class JSONWriter {
         }
     }
 
-    private void writeArray(int nestingLevel, Iterable<?> collection) {
-        if (!collection.iterator().hasNext()) {
+    private void writeObject(int nestingLevel, boolean empty, Iterable<? extends Map.Entry<?, ?>> map) {
+        if (empty) {
+            print("{}");
+        } else {
+            println("{");
+            boolean first = true;
+            for (Map.Entry<?, ?> entry : map) {
+                if (first) {
+                    first = false;
+                } else {
+                    println(",");
+                }
+                String key = JSONConverter.key(entry.getKey());
+                print(nestingLevel + 1, "\"" + escape(key) + "\":" + space);
+                Object value = entry.getValue();
+                write(nestingLevel + 1, value);
+            }
+            println("");
+            print(nestingLevel, "}");
+        }
+    }
+
+    private void writeArray(int nestingLevel, boolean empty, Iterable<?> collection) {
+        if (empty) {
             print("[]");
         } else {
             println("[");
@@ -120,32 +143,21 @@ public final class JSONWriter {
     private void write(int nestingLevel, Object obj) {
         if (obj == null) {
             print("null");
+        } else if (obj instanceof JSONObject) {
+            JSONObject jsobj = (JSONObject) obj;
+            writeObject(nestingLevel, jsobj.isEmpty(), jsobj);
         } else if (obj instanceof Map<?, ?>) {
             Map<?, ?> map = (Map<?, ?>) obj;
-            if (map.isEmpty()) {
-                print("{}");
-            } else {
-                println("{");
-                boolean first = true;
-                for (Map.Entry<?, ?> entry : map.entrySet()) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        println(",");
-                    }
-                    String key = String.valueOf(entry.getKey());
-                    print(nestingLevel + 1, "\"" + escape(key) + "\":" + space);
-                    Object value = entry.getValue();
-                    write(nestingLevel + 1, value);
-                }
-                println("");
-                print(nestingLevel, "}");
-            }
-        } else if (obj instanceof Iterable<?>) {
-            Iterable<?> collection = (Iterable<?>) obj;
-            writeArray(nestingLevel, collection);
+            writeObject(nestingLevel, map.isEmpty(), map.entrySet());
+        } else if (obj instanceof JSONArray) {
+            JSONArray array = (JSONArray) obj;
+            writeArray(nestingLevel, array.isEmpty(), array);
+        } else if (obj instanceof Collection<?>) {
+            Collection<?> collection = (Collection<?>) obj;
+            writeArray(nestingLevel, collection.isEmpty(), collection);
         } else if (obj.getClass().isArray()) {
-            writeArray(nestingLevel, () -> new ArrayIterator(obj));
+            int length = Array.getLength(obj);
+            writeArray(nestingLevel, length <= 0, () -> new ArrayIterator(obj, length));
         } else if (obj instanceof Boolean) {
             Boolean bool = (Boolean) obj;
             print(bool.toString());
@@ -170,9 +182,9 @@ public final class JSONWriter {
         private final int length;
         private int i = 0;
 
-        ArrayIterator(Object array) {
+        ArrayIterator(Object array, int length) {
             this.array = array;
-            this.length = Array.getLength(array);
+            this.length = length;
         }
 
         @Override
