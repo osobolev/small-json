@@ -18,6 +18,10 @@ public class JSONValueFactory {
         return 0;
     }
 
+    public static BigInteger bigIntegerValue(int sign, String digits) {
+        return new BigInteger(sign < 0 ? "-" + digits : digits);
+    }
+
     public Object intValue(int sign, String digits) {
         if (digits.length() <= 9) {
             return Integer.parseInt(digits) * sign;
@@ -29,7 +33,7 @@ public class JSONValueFactory {
                 return x;
             }
         }
-        BigInteger x = new BigInteger(sign < 0 ? "-" + digits : digits);
+        BigInteger x = bigIntegerValue(sign, digits);
         if (x.bitLength() <= 63) {
             return x.longValue();
         } else {

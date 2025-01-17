@@ -164,7 +164,7 @@ public class StructureTests {
         JSONValueFactory valueFactory = new JSONValueFactory() {
             @Override
             public Object intValue(int sign, String digits) {
-                return new BigInteger(sign < 0 ? "-" + digits : digits);
+                return bigIntegerValue(sign, digits);
             }
         };
         JSONParseOptions options = JSONParseOptions.builder().copy(options()).valueFactory(valueFactory).build();
