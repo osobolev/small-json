@@ -87,6 +87,8 @@ public class StructureTests {
         testLocation("[\"\uD83C\uDF55\", \r\r@", 9, 3, 1);
         testLocation("[\"\uD83C\uDF55\", \n\n@", 9, 3, 1);
         testLocation("[\"\uD83C\uDF55\"\r,\r\n\"\uD83C\uDF55\"\n\r,\n@", 17, 6, 1);
+
+        testLocation("[ 1, \"\uD83C\uDF55\", \"\uD83C\" ]", 12, 1, 12);
     }
 
     @Test

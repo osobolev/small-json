@@ -8,6 +8,9 @@ import java.util.zip.ZipInputStream;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static smalljson.TestUtil.options;
 
+/**
+ * <a href="https://www.json.org/JSON_checker">Test suite</a> utility
+ */
 public class SiteUtil {
 
     public interface TestConsumer {
