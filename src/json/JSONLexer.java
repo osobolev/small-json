@@ -277,7 +277,7 @@ public final class JSONLexer {
                 if (isInfinity(ident)) {
                     Object value;
                     if (keepStrings) {
-                        value = strSign + ident;
+                        value = valueFactory.rawValue(strSign + ident);
                     } else {
                         value = valueFactory.infinityValue(isign);
                     }
@@ -332,7 +332,7 @@ public final class JSONLexer {
         }
         Object value;
         if (keepStrings) {
-            value = strSign + buf;
+            value = valueFactory.rawValue(strSign + buf);
         } else {
             if (isign != 0 && !floating && digits1 == Digits.ONLY_ZERO) {
                 value = valueFactory.zeroValue(isign);
@@ -397,19 +397,19 @@ public final class JSONLexer {
             JSONTokenType type;
             Object value = null;
             if (isValue(ident, "true")) {
-                value = keepStrings ? ident : valueFactory.boolValue(true);
+                value = keepStrings ? valueFactory.rawValue(ident) : valueFactory.boolValue(true);
                 type = JSONTokenType.TRUE;
             } else if (isValue(ident, "false")) {
-                value = keepStrings ? ident : valueFactory.boolValue(false);
+                value = keepStrings ? valueFactory.rawValue(ident) : valueFactory.boolValue(false);
                 type = JSONTokenType.FALSE;
             } else if (isValue(ident, "null")) {
-                value = keepStrings ? ident : valueFactory.nullValue();
+                value = keepStrings ? valueFactory.rawValue(ident) : valueFactory.nullValue();
                 type = JSONTokenType.NULL;
             } else if ("NaN".equalsIgnoreCase(ident)) {
-                value = keepStrings ? ident : valueFactory.nanValue();
+                value = keepStrings ? valueFactory.rawValue(ident) : valueFactory.nanValue();
                 type = JSONTokenType.IDENT_FLOAT;
             } else if (isInfinity(ident)) {
-                value = keepStrings ? ident : valueFactory.infinityValue(0);
+                value = keepStrings ? valueFactory.rawValue(ident) : valueFactory.infinityValue(0);
                 type = JSONTokenType.IDENT_FLOAT;
             } else {
                 type = JSONTokenType.IDENT;

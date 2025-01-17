@@ -2,6 +2,10 @@ package json;
 
 public class JSONValueFactory {
 
+    public Object rawValue(String string) {
+        return string;
+    }
+
     public Object nanValue() {
         return Double.NaN;
     }
