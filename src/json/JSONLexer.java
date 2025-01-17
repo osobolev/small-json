@@ -260,18 +260,15 @@ public final class JSONLexer {
 
     private JSONToken parseNumber(long index, int line, int column) {
         int isign = 0;
-        String strSign = "";
         if (ch() == '+') {
             if (!leadingPlus) {
                 throw new JSONParseException(index, line, column, "Plus sign is not allowed");
             }
             next();
-            isign = +1;
-            strSign = "+";
+            isign = 1;
         } else if (ch() == '-') {
             next();
             isign = -1;
-            strSign = "-";
         }
         if (specialNumbers) {
             int ch = ch();
