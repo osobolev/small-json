@@ -11,7 +11,7 @@ public class JSONValueFactory {
     }
 
     public Object zeroValue(int sign) {
-        return sign < 0 ? -0.0 : +0.0;
+        return 0;
     }
 
     public Object intValue(String str) {
