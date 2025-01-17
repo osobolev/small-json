@@ -1,9 +1,6 @@
 package smalljson;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TestUtil {
 
@@ -11,8 +8,20 @@ public class TestUtil {
         return Arrays.asList(items);
     }
 
+    public static Map<String, Object> map() {
+        return Collections.emptyMap();
+    }
+
     public static Map<String, Object> map(String key1, Object value1) {
         return Collections.singletonMap(key1, value1);
+    }
+
+    public static Map<String, Object> map(String key1, Object value1,
+                                          String key2, Object value2) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put(key1, value1);
+        map.put(key2, value2);
+        return map;
     }
 
     private static final JSONValueFactory TEST_FACTORY = new JSONValueFactory() {
