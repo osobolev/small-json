@@ -58,9 +58,13 @@ public enum JSONReadFeature {
     TRAILING_DECIMAL_POINT,
 
     /**
-     * {@code { x: "value" } -> { "x": "value: }}
+     * {@code { x: "value" } -> { "x": "value" }}
      */
     UNQUOTED_FIELD_NAMES,
+    /**
+     * {@code { "x": 1, "x": 2 } -> { "x": 2 }}
+     */
+    DUPLICATE_FIELD_NAMES,
     /**
      * {@code { "x": "value", } -> { "x": "value" }}
      * {@code [1,2,] -> [1,2]}

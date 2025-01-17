@@ -18,6 +18,7 @@ public final class JSONParser {
     private final boolean allowMissingValues;
     private final boolean allowTrailingComma;
     private final boolean unquotedFields;
+    private final boolean duplicateKeys;
     private final boolean extraChars;
 
     private JSONToken current;
@@ -29,6 +30,7 @@ public final class JSONParser {
         this.allowMissingValues = options.features.contains(JSONReadFeature.ARRAY_MISSING_VALUES);
         this.allowTrailingComma = options.features.contains(JSONReadFeature.TRAILING_COMMA);
         this.unquotedFields = options.features.contains(JSONReadFeature.UNQUOTED_FIELD_NAMES);
+        this.duplicateKeys = options.features.contains(JSONReadFeature.DUPLICATE_FIELD_NAMES);
         this.extraChars = options.features.contains(JSONReadFeature.EXTRA_CHARS);
 
         this.current = lexer.nextToken();
@@ -101,7 +103,7 @@ public final class JSONParser {
                         throw new JSONParseException(current, "Unquoted field names are not allowed");
                     }
                     key = current.text;
-                    if (!options.allowDuplicateKeys && object.containsKey(key)) {
+                    if (!duplicateKeys && object.containsKey(key)) {
                         throw new JSONParseException(current, "Duplicate key '" + key + "' in object");
                     }
                     next();
