@@ -152,10 +152,13 @@ public final class JSONLexer {
         SYMBOLS.put((int) ':', JSONTokenType.COLON);
     }
 
-    private void parseEscape(StringBuilder buf) {
+    private void parseEscape(StringBuilder buf, StringBuilder rawBuf) {
         int ch = ch();
         if (ch < 0) {
             throw new JSONParseException(index, line, column, "Unterminated escape sequence");
+        }
+        if (rawBuf != null) {
+            rawBuf.appendCodePoint(ch);
         }
         int escape;
         if (ch == '"' || ch == '\\' || ch == '/') {
@@ -183,6 +186,9 @@ public final class JSONLexer {
                     break;
                 int digit = Character.digit(uch, 16);
                 if (digit >= 0) {
+                    if (rawBuf != null) {
+                        rawBuf.append((char) uch);
+                    }
                     next();
                     ndigits++;
                     unicode = (unicode << 4) + digit;
@@ -205,13 +211,23 @@ public final class JSONLexer {
         buf.appendCodePoint(escape);
     }
 
-    private String parseString(int quote) {
+    private JSONToken parseString(long index, int line, int column, int quote) {
         next();
+        StringBuilder rawBuf;
+        if (keepStrings) {
+            rawBuf = new StringBuilder();
+            rawBuf.appendCodePoint(quote);
+        } else {
+            rawBuf = null;
+        }
         StringBuilder buf = new StringBuilder();
         while (true) {
             int ch = ch();
             if (ch < 0) {
                 throw new JSONParseException(index, line, column, "String is not terminated");
+            }
+            if (rawBuf != null) {
+                rawBuf.appendCodePoint(ch);
             }
             if (ch == quote) {
                 next();
@@ -219,7 +235,7 @@ public final class JSONLexer {
             }
             if (ch == '\\') {
                 next();
-                parseEscape(buf);
+                parseEscape(buf, rawBuf);
                 continue;
             }
             if (!unescapedControls && ch < ' ') {
@@ -228,7 +244,14 @@ public final class JSONLexer {
             next();
             buf.appendCodePoint(ch);
         }
-        return buf.toString();
+        String text = buf.toString();
+        Object value;
+        if (rawBuf != null) {
+            value = valueFactory.rawValue(rawBuf.toString());
+        } else {
+            value = valueFactory.stringValue(text);
+        }
+        return new JSONToken(JSONTokenType.STRING, text, value, index, line, column);
     }
 
     private enum Digits {
@@ -393,8 +416,7 @@ public final class JSONLexer {
             if (!singleQuotes && ch == '\'') {
                 throw new JSONParseException(index, line, column, "Single quotes are not allowed");
             }
-            String string = parseString(ch);
-            return new JSONToken(JSONTokenType.STRING, string, index, line, column);
+            return parseString(index, line, column, ch);
         } else if ((ch >= '0' && ch <= '9') || ch == '+' || ch == '-' || ch == '.') {
             return parseNumber(index, line, column);
         } else if (Character.isJavaIdentifierStart(ch)) {
