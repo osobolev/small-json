@@ -1,5 +1,6 @@
 package smalljson;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -10,21 +11,42 @@ import static smalljson.TestUtil.parse;
 
 public class WriterTests {
 
+    private static String toString(Object obj, int indent) {
+        if (indent < 0) {
+            return JSONWriter.toString(obj);
+        } else {
+            String indentStr = indent == 0 ? "" : "  ";
+            return JSONWriter.toString(obj, indentStr);
+        }
+    }
+
     @ParameterizedTest
-    @ValueSource(strings = {"", "  "})
-    public void testWriter(String indent) throws IOException {
+    @ValueSource(ints = {0, 1, -1})
+    public void testWriter(int indent) throws IOException {
         JSONParseOptions options = SiteUtil.siteOptions();
         SiteUtil.scanSiteTests((name, failing, is) -> {
             if (failing)
                 return;
             Object origObj = new JSONParser(options, is).parse();
-            String json1 = JSONWriter.toString(origObj, indent);
+            String json1 = toString(origObj, indent);
 
             Object newObj = parse(json1);
             assertEquals(origObj, newObj);
 
-            String json2 = JSONWriter.toString(newObj, indent);
+            String json2 = toString(newObj, indent);
             assertEquals(json1, json2);
         });
+    }
+
+    @Test
+    public void testArray() {
+        int[] array = {1, 2};
+        assertEquals("[1,2]", JSONWriter.toString(array, ""));
+    }
+
+    @Test
+    public void testRaw() {
+        JSONRawValue raw = () -> "xyzzy";
+        assertEquals("xyzzy", JSONWriter.toString(raw, ""));
     }
 }
