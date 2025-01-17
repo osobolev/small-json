@@ -28,8 +28,12 @@ public final class JSONParser {
         this.current = lexer.nextToken();
     }
 
-    private void next() {
+    public void next() {
         current = lexer.nextToken();
+    }
+
+    public JSONToken getCurrent() {
+        return current;
     }
 
     private void require(JSONTokenType type, String message) {
