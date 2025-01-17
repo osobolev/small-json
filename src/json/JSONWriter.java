@@ -2,7 +2,6 @@ package json;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -59,36 +58,39 @@ public final class JSONWriter {
         }
     }
 
+    private static void unicodeEscape(StringBuilder buf, char ch) {
+        String hex = Integer.toHexString(ch);
+        buf.append("\\u").append("0000", 0, 4 - hex.length()).append(hex);
+    }
+
     private static String escape(String str) {
         StringBuilder buf = new StringBuilder(str.length());
         for (int i = 0; i < str.length(); i++) {
             char ch = str.charAt(i);
-            if (ch < ' ') {
-                char escape;
-                if (ch == '\b') {
-                    escape = 'b';
-                } else if (ch == '\f') {
-                    escape = 'f';
-                } else if (ch == '\r') {
-                    escape = 'r';
-                } else if (ch == '\n') {
-                    escape = 'n';
-                } else if (ch == '\t') {
-                    escape = 't';
-                } else {
-                    String hex = Integer.toHexString(ch);
-                    char[] pad = new char[4 - hex.length()];
-                    Arrays.fill(pad, '0');
-                    buf.append("\\u").append(new String(pad)).append(hex);
-                    continue;
-                }
-                buf.append('\\').append(escape);
+            char escape;
+            if (ch == '\b') {
+                escape = 'b';
+            } else if (ch == '\f') {
+                escape = 'f';
+            } else if (ch == '\n') {
+                escape = 'n';
+            } else if (ch == '\r') {
+                escape = 'r';
+            } else if (ch == '\t') {
+                escape = 't';
             } else if (ch == '"' || ch == '\\') {
                 buf.append('\\').append(ch);
+                continue;
             } else {
-                // todo: unicode escape some extra-special characters???
-                buf.append(ch);
+                if (ch < ' ') {
+                    unicodeEscape(buf, ch);
+                } else {
+                    // todo: unicode escape some extra-special characters???
+                    buf.append(ch);
+                }
+                continue;
             }
+            buf.append('\\').append(escape);
         }
         return buf.toString();
     }
