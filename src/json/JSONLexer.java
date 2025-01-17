@@ -154,6 +154,9 @@ public final class JSONLexer {
 
     private void parseEscape(StringBuilder buf) {
         int ch = ch();
+        if (ch < 0) {
+            throw new JSONParseException(index, line, column, "Unterminated escape sequence");
+        }
         int escape;
         if (ch == '"' || ch == '\\' || ch == '/') {
             escape = ch;
@@ -176,6 +179,8 @@ public final class JSONLexer {
             int unicode = 0;
             while (ndigits < 4) {
                 int uch = ch();
+                if (uch < 0)
+                    break;
                 int digit = Character.digit(uch, 16);
                 if (digit >= 0) {
                     next();
