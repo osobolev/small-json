@@ -221,4 +221,71 @@ public class DemoTests {
             });
         }
     }
+
+    /**
+     * Demo of available JSON syntax extensions which can be optionally enabled
+     */
+    @Test
+    public void parsingExtensionsDemo() {
+        {
+            // Enabling support for Java-style comments in JSON:
+            JSON factory = JSON
+                .options()
+                .feature(JSONReadFeature.JAVA_COMMENTS)
+                .build();
+            assertEquals(
+                factory.newObject(),
+                factory.parse("{ /* comment */ } // another comment") // Look! It parses!
+            );
+        }
+        {
+            // Enabling support for unquoted field names and single-quoted strings:
+            JSON factory = JSON
+                .options()
+                .feature(JSONReadFeature.SINGLE_QUOTES)
+                .feature(JSONReadFeature.UNQUOTED_FIELD_NAMES)
+                .build();
+            assertEquals(
+                factory.newObject().put("name", "Jsonathan"),
+                factory.parse("{ name: 'Jsonathan' }") // Look! It parses!
+            );
+        }
+        {
+            // Enabling support for missing values in arrays and trailing commas in objects/arrays:
+            JSON factory = JSON
+                .options()
+                .feature(JSONReadFeature.ARRAY_MISSING_VALUES)
+                .feature(JSONReadFeature.TRAILING_COMMA)
+                .build();
+            assertEquals(
+                factory.newArray().addAll(1, null, null, 2), // Trailing comma has priority over missing values
+                factory.parse("[1, , , 2, ]") // Look! It parses!
+            );
+            assertEquals(
+                factory.newObject().put("id", 123),
+                factory.parse("{ \"id\": 123, }") // Look! It parses!
+            );
+        }
+        {
+            // Enabling support for non-standard numbers:
+            JSON factory = JSON
+                .options()
+                .addFeatures(
+                    JSONReadFeature.LEADING_PLUS_SIGN,
+                    JSONReadFeature.LEADING_ZEROS,
+                    JSONReadFeature.LEADING_DECIMAL_POINT,
+                    JSONReadFeature.TRAILING_DECIMAL_POINT,
+                    JSONReadFeature.NAN_INF_NUMBERS
+                )
+                .build();
+            assertEquals(123, factory.parse("+123")); // Look! It parses!
+            assertEquals(123, factory.parse("0123")); // Look! It parses!
+            assertEquals(.123, factory.parse(".123")); // Look! It parses!
+            assertEquals(123., factory.parse("123.")); // Look! It parses!
+            assertEquals(Double.NaN, factory.parse("NaN")); // Look! It parses!
+            assertEquals(Double.POSITIVE_INFINITY, factory.parse("Infinity")); // Look! It parses!
+            assertEquals(Double.POSITIVE_INFINITY, factory.parse("+inf")); // Look! It parses!
+            assertEquals(Double.NEGATIVE_INFINITY, factory.parse("-inf")); // Look! It parses!
+        }
+    }
 }
