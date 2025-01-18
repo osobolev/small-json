@@ -1,4 +1,6 @@
-package smalljson;
+package smalljson.parser;
+
+import smalljson.*;
 
 import java.io.Reader;
 import java.util.List;

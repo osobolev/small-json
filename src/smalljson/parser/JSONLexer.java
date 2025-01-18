@@ -1,4 +1,9 @@
-package smalljson;
+package smalljson.parser;
+
+import smalljson.JSONParseException;
+import smalljson.JSONParseOptions;
+import smalljson.JSONReadFeature;
+import smalljson.JSONValueFactory;
 
 import java.io.IOException;
 import java.io.Reader;

@@ -1,4 +1,4 @@
-package smalljson;
+package smalljson.parser;
 
 public final class JSONToken {
 

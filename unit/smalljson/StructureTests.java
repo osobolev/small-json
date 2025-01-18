@@ -1,6 +1,8 @@
 package smalljson;
 
 import org.junit.jupiter.api.Test;
+import smalljson.parser.JSONParser;
+import smalljson.parser.JSONTokenType;
 
 import java.io.IOException;
 import java.io.InputStream;

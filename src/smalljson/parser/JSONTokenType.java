@@ -1,4 +1,4 @@
-package smalljson;
+package smalljson.parser;
 
 public enum JSONTokenType {
     LCURLY("{"), RCURLY("}"), LSQUARE("["), RSQUARE("]"), COMMA(","), COLON(":"),

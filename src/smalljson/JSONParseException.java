@@ -1,5 +1,7 @@
 package smalljson;
 
+import smalljson.parser.JSONToken;
+
 public class JSONParseException extends RuntimeException {
 
     public final long index;
