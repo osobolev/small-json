@@ -8,6 +8,10 @@ public class JSONParseException extends RuntimeException {
     public final int line;
     public final int column;
 
+    public JSONParseException(String message) {
+        this(-1, 0, 0, message);
+    }
+
     public JSONParseException(JSONToken token, String message) {
         this(token.index, token.line, token.column, message);
     }
@@ -25,6 +29,13 @@ public class JSONParseException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        return super.getMessage() + " at " + line + ":" + column;
+        String message = super.getMessage();
+        if (line > 0 && column > 0) {
+            return message + " at " + line + ":" + column;
+        } else if (line > 0) {
+            return message + " at line " + line;
+        } else {
+            return message;
+        }
     }
 }
