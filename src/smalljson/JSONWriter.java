@@ -144,7 +144,7 @@ public final class JSONWriter {
         return buf.toString();
     }
 
-    private void write(int nestingLevel, Object value) {
+    public void write(int nestingLevel, Object value) {
         if (value == null) {
             print("null");
         } else if (value instanceof JSONObject) {
