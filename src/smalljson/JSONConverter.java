@@ -31,19 +31,25 @@ public final class JSONConverter {
         } else if (String.class.equals(cls)) {
             return String.valueOf(value);
         } else if (Integer.class.equals(cls) || int.class.equals(cls)) {
-            if (value instanceof Number) {
+            if (value instanceof Integer) {
+                return value;
+            } else if (value instanceof Number) {
                 return ((Number) value).intValue();
             } else if (value instanceof String) {
                 return Integer.valueOf((String) value);
             }
         } else if (Long.class.equals(cls) || long.class.equals(cls)) {
-            if (value instanceof Number) {
+            if (value instanceof Long) {
+                return value;
+            } else if (value instanceof Number) {
                 return ((Number) value).longValue();
             } else if (value instanceof String) {
                 return Long.valueOf((String) value);
             }
         } else if (Double.class.equals(cls) || double.class.equals(cls)) {
-            if (value instanceof Number) {
+            if (value instanceof Double) {
+                return value;
+            } else if (value instanceof Number) {
                 return ((Number) value).doubleValue();
             } else if (value instanceof String) {
                 return Double.valueOf((String) value);
