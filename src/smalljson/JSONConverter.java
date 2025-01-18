@@ -49,7 +49,9 @@ public final class JSONConverter {
                 return Double.valueOf((String) value);
             }
         } else if (Boolean.class.equals(cls) || boolean.class.equals(cls)) {
-            if (value instanceof String) {
+            if (value instanceof Boolean) {
+                return value;
+            } else if (value instanceof String) {
                 return Boolean.valueOf((String) value);
             }
         } else if (BigInteger.class.isAssignableFrom(cls)) {
