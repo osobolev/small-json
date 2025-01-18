@@ -9,7 +9,7 @@ import java.nio.file.Path;
 
 public final class JSON {
 
-    public final JSONParseOptions options;
+    private final JSONParseOptions options;
 
     public JSON(JSONParseOptions options) {
         this.options = options;
@@ -17,6 +17,10 @@ public final class JSON {
 
     public JSON() {
         this(JSONParseOptions.DEFAULT);
+    }
+
+    public JSONParseOptions getOptions() {
+        return options;
     }
 
     public static JSONParseOptions.Builder options() {
