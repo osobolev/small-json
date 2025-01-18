@@ -2,6 +2,7 @@ package smalljson;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -74,6 +75,8 @@ public final class JSONConverter {
         } else if (JSONArray.class.isAssignableFrom(cls)) {
             if (value instanceof List) {
                 return new JSONArray((List<Object>) value);
+            } else if (value instanceof Object[]) {
+                return new JSONArray(Arrays.asList((Object[]) value));
             }
         }
         return cls.cast(value);
