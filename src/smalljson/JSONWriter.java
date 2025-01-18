@@ -2,6 +2,7 @@ package smalljson;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
@@ -26,11 +27,14 @@ public final class JSONWriter {
         this.space = indent.isEmpty() ? "" : " ";
     }
 
+    public static void writeTo(Object obj, String indent, Writer out) {
+        PrintWriter pw = out instanceof PrintWriter ? (PrintWriter) out : new PrintWriter(out);
+        new JSONWriter(pw, indent).write(obj);
+    }
+
     public static String toString(Object obj, String indent) {
         StringWriter sw = new StringWriter();
-        try (PrintWriter pw = new PrintWriter(sw)) {
-            new JSONWriter(pw, indent).write(obj);
-        }
+        writeTo(obj, indent, sw);
         return sw.toString();
     }
 
