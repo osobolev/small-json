@@ -35,14 +35,18 @@ public final class JSON {
         return new JSONArray(options.valueFactory.arrayValue());
     }
 
-    private static InputStreamReader toReader(InputStream is) {
+    public JSONParser newParser(Reader rdr) {
+        return new JSONParser(options, rdr);
+    }
+
+    public static Reader toReader(InputStream is) {
         return new InputStreamReader(is, StandardCharsets.UTF_8);
     }
 
     // Objects
 
     public JSONObject parseObject(Reader rdr) {
-        return new JSONParser(options, rdr).parseObject();
+        return newParser(rdr).parseObject();
     }
 
     public JSONObject parseObject(InputStream is) {
@@ -62,7 +66,7 @@ public final class JSON {
     // Arrays
 
     public JSONArray parseArray(Reader rdr) {
-        return new JSONParser(options, rdr).parseArray();
+        return newParser(rdr).parseArray();
     }
 
     public JSONArray parseArray(InputStream is) {
@@ -82,7 +86,7 @@ public final class JSON {
     // Any value
 
     public Object parse(Reader rdr) {
-        return new JSONParser(options, rdr).parse();
+        return newParser(rdr).parse();
     }
 
     public Object parse(InputStream is) {
