@@ -1,15 +1,13 @@
 package smalljson.parser;
 
+import smalljson.JSONFeature;
 import smalljson.JSONParseException;
 import smalljson.JSONParseOptions;
-import smalljson.JSONFeature;
 import smalljson.JSONValueFactory;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public final class JSONLexer {
 
@@ -142,17 +140,6 @@ public final class JSONLexer {
                 break;
             next();
         }
-    }
-
-    private static final Map<Integer, JSONTokenType> SYMBOLS = new HashMap<>();
-
-    static {
-        SYMBOLS.put((int) '{', JSONTokenType.LCURLY);
-        SYMBOLS.put((int) '}', JSONTokenType.RCURLY);
-        SYMBOLS.put((int) '[', JSONTokenType.LSQUARE);
-        SYMBOLS.put((int) ']', JSONTokenType.RSQUARE);
-        SYMBOLS.put((int) ',', JSONTokenType.COMMA);
-        SYMBOLS.put((int) ':', JSONTokenType.COLON);
     }
 
     private void parseEscape(StringBuilder buf) {
@@ -376,7 +363,22 @@ public final class JSONLexer {
         int column = this.column;
         if (ch < 0)
             return new JSONToken(JSONTokenType.EOF, null, index, line, column);
-        JSONTokenType stype = SYMBOLS.get(ch);
+        JSONTokenType stype;
+        if (ch == '{') {
+            stype = JSONTokenType.LCURLY;
+        } else if (ch == '}') {
+            stype = JSONTokenType.RCURLY;
+        } else if (ch == '[') {
+            stype = JSONTokenType.LSQUARE;
+        } else if (ch == ']') {
+            stype = JSONTokenType.RSQUARE;
+        } else if (ch == ',') {
+            stype = JSONTokenType.COMMA;
+        } else if (ch == ':') {
+            stype = JSONTokenType.COLON;
+        } else {
+            stype = null;
+        }
         if (stype != null) {
             next();
             return new JSONToken(stype, null, index, line, column);
