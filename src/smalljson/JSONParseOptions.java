@@ -18,6 +18,10 @@ public final class JSONParseOptions {
         this.maxNestingLevel = maxNestingLevel;
     }
 
+    public Builder copy() {
+        return new Builder(features, valueFactory, maxNestingLevel);
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -25,14 +29,18 @@ public final class JSONParseOptions {
     public static final class Builder {
 
         private final Set<JSONFeature> features = EnumSet.noneOf(JSONFeature.class);
-        private JSONValueFactory valueFactory = JSONValueFactory.DEFAULT;
-        private int maxNestingLevel = 512;
+        private JSONValueFactory valueFactory;
+        private int maxNestingLevel;
 
-        public Builder copy(JSONParseOptions other) {
-            this.setFeatures(other.features);
-            this.valueFactory(other.valueFactory);
-            this.maxNestingLevel(other.maxNestingLevel);
-            return this;
+        public Builder() {
+            valueFactory = JSONValueFactory.DEFAULT;
+            maxNestingLevel = 512;
+        }
+
+        public Builder(Set<JSONFeature> features, JSONValueFactory valueFactory, int maxNestingLevel) {
+            this.features.addAll(features);
+            this.valueFactory = valueFactory;
+            this.maxNestingLevel = maxNestingLevel;
         }
 
         /**
