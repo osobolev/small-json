@@ -110,7 +110,7 @@ public final class JSONWriter {
         buf.append("\\u").append("0000", 0, 4 - hex.length()).append(hex);
     }
 
-    private static String escape(String str) {
+    public static String escape(String str) {
         StringBuilder buf = new StringBuilder(str.length());
         for (int i = 0; i < str.length(); i++) {
             char ch = str.charAt(i);
