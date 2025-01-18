@@ -66,7 +66,10 @@ public final class JSONConverter {
             if (value instanceof BigInteger) {
                 return new BigDecimal((BigInteger) value);
             } else if (value instanceof Number) {
-                return BigDecimal.valueOf(((Number) value).doubleValue());
+                Number number = (Number) value;
+                double d = number.doubleValue();
+                long l = number.longValue();
+                return d == l ? BigDecimal.valueOf(l) : BigDecimal.valueOf(d);
             } else if (value instanceof String) {
                 return new BigDecimal((String) value);
             }
