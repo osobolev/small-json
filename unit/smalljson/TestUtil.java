@@ -28,9 +28,7 @@ public class TestUtil {
     }
 
     public static JSONParseOptions.Builder optBuilder(JSONReadFeature... features) {
-        return JSONParseOptions
-            .builder()
-            .addFeatures(features);
+        return JSON.options().addFeatures(features);
     }
 
     public static JSONParseOptions options(JSONReadFeature... features) {

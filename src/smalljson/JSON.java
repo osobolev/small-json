@@ -17,6 +17,10 @@ public final class JSON {
         this(JSONParseOptions.DEFAULT);
     }
 
+    public static JSONParseOptions.Builder options() {
+        return JSONParseOptions.builder();
+    }
+
     public JSONObject newObject() {
         return new JSONObject(options.valueFactory.objectValue());
     }
