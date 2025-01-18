@@ -64,12 +64,12 @@ public class CustomizeTests {
 
         JSONObject object = options.parseObject("{ \"x\": null }");
         assertEquals(NULL, object.get("x"));
-        assertNull(object.get(String.class, "x"));
+        assertNull(object.get("x", String.class));
         assertEquals(map("x", null), parse(JSONWriter.toString(object)));
 
         JSONArray array = options.parseArray("[null, null]");
         assertEquals(NULL, array.get(0));
-        assertNull(array.get(String.class, 0));
+        assertNull(array.get(0, String.class));
         assertEquals(list(null, null), parse(JSONWriter.toString(array)));
     }
 }

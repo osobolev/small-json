@@ -41,7 +41,7 @@ public final class JSONObject implements Iterable<Map.Entry<String, Object>> {
         return map.get(key);
     }
 
-    public <T> T opt(Class<T> cls, String key, T defaultValue) {
+    public <T> T opt(String key, Class<T> cls, T defaultValue) {
         Object value = map.get(key);
         T result = JSONConverter.convert(cls, value);
         if (result == null)
@@ -49,8 +49,8 @@ public final class JSONObject implements Iterable<Map.Entry<String, Object>> {
         return result;
     }
 
-    public <T> T opt(Class<T> cls, String key) {
-        return opt(cls, key, null);
+    public <T> T opt(String key, Class<T> cls) {
+        return opt(key, cls, null);
     }
 
     private void checkKeyExists(String key) {
@@ -64,9 +64,9 @@ public final class JSONObject implements Iterable<Map.Entry<String, Object>> {
         return opt(key);
     }
 
-    public <T> T get(Class<T> cls, String key) {
+    public <T> T get(String key, Class<T> cls) {
         checkKeyExists(key);
-        return opt(cls, key);
+        return opt(key, cls);
     }
 
     public JSONObject put(String key, Object value) {

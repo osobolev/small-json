@@ -37,7 +37,7 @@ public final class JSONArray implements Iterable<Object> {
         return list.get(index);
     }
 
-    public <T> T get(Class<T> cls, int index, T defaultValue) {
+    public <T> T get(int index, Class<T> cls, T defaultValue) {
         Object item = list.get(index);
         T result = JSONConverter.convert(cls, item);
         if (result == null)
@@ -45,8 +45,8 @@ public final class JSONArray implements Iterable<Object> {
         return result;
     }
 
-    public <T> T get(Class<T> cls, int index) {
-        return get(cls, index, null);
+    public <T> T get(int index, Class<T> cls) {
+        return get(index, cls, null);
     }
 
     public JSONArray add(Object value) {
