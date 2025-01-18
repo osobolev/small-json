@@ -21,7 +21,7 @@ public class NonNumericTests {
     public void testUnsignedNanValues() {
         assertThrows(
             JSONParseException.class,
-            () -> parse("{ \"value\": YesItsANumber }", JSONReadFeature.NAN_INF_NUMBERS)
+            () -> parse("{ \"value\": YesItsANumber }", JSONFeature.NAN_INF_NUMBERS)
         );
         for (int i = 0; i < NANS.length; i++) {
             String nan = NANS[i];
@@ -29,7 +29,7 @@ public class NonNumericTests {
             String objJson = "{ \"value\": " + nan + " }";
             assertEquals(
                 map("value", value),
-                parse(objJson, JSONReadFeature.NAN_INF_NUMBERS)
+                parse(objJson, JSONFeature.NAN_INF_NUMBERS)
             );
             assertThrows(
                 JSONParseException.class,
@@ -39,7 +39,7 @@ public class NonNumericTests {
             String arrJson = "[ " + nan + " ]";
             assertEquals(
                 list(value),
-                parse(arrJson, JSONReadFeature.NAN_INF_NUMBERS)
+                parse(arrJson, JSONFeature.NAN_INF_NUMBERS)
             );
             assertThrows(
                 JSONParseException.class,
@@ -52,7 +52,7 @@ public class NonNumericTests {
     public void testMinusNanValues() {
         assertThrows(
             JSONParseException.class,
-            () -> parse("{ \"value\": -YesItsANumber }", JSONReadFeature.NAN_INF_NUMBERS)
+            () -> parse("{ \"value\": -YesItsANumber }", JSONFeature.NAN_INF_NUMBERS)
         );
         for (int i = 0; i < NANS.length; i++) {
             String nan = NANS[i];
@@ -61,12 +61,12 @@ public class NonNumericTests {
             if (Double.isNaN(value)) {
                 assertThrows(
                     JSONParseException.class,
-                    () -> parse(objJson, JSONReadFeature.NAN_INF_NUMBERS)
+                    () -> parse(objJson, JSONFeature.NAN_INF_NUMBERS)
                 );
             } else {
                 assertEquals(
                     map("value", -value),
-                    parse(objJson, JSONReadFeature.NAN_INF_NUMBERS)
+                    parse(objJson, JSONFeature.NAN_INF_NUMBERS)
                 );
             }
             assertThrows(
@@ -78,12 +78,12 @@ public class NonNumericTests {
             if (Double.isNaN(value)) {
                 assertThrows(
                     JSONParseException.class,
-                    () -> parse(arrJson, JSONReadFeature.NAN_INF_NUMBERS)
+                    () -> parse(arrJson, JSONFeature.NAN_INF_NUMBERS)
                 );
             } else {
                 assertEquals(
                     list(-value),
-                    parse(arrJson, JSONReadFeature.NAN_INF_NUMBERS)
+                    parse(arrJson, JSONFeature.NAN_INF_NUMBERS)
                 );
             }
             assertThrows(
@@ -97,7 +97,7 @@ public class NonNumericTests {
     public void testPlusNanValues() {
         assertThrows(
             JSONParseException.class,
-            () -> parse("{ \"value\": +YesItsANumber }", JSONReadFeature.NAN_INF_NUMBERS, JSONReadFeature.LEADING_PLUS_SIGN)
+            () -> parse("{ \"value\": +YesItsANumber }", JSONFeature.NAN_INF_NUMBERS, JSONFeature.LEADING_PLUS_SIGN)
         );
         for (int i = 0; i < NANS.length; i++) {
             String nan = NANS[i];
@@ -106,17 +106,17 @@ public class NonNumericTests {
             if (Double.isNaN(value)) {
                 assertThrows(
                     JSONParseException.class,
-                    () -> parse(objJson, JSONReadFeature.NAN_INF_NUMBERS, JSONReadFeature.LEADING_PLUS_SIGN)
+                    () -> parse(objJson, JSONFeature.NAN_INF_NUMBERS, JSONFeature.LEADING_PLUS_SIGN)
                 );
             } else {
                 assertEquals(
                     map("value", value),
-                    parse(objJson, JSONReadFeature.NAN_INF_NUMBERS, JSONReadFeature.LEADING_PLUS_SIGN)
+                    parse(objJson, JSONFeature.NAN_INF_NUMBERS, JSONFeature.LEADING_PLUS_SIGN)
                 );
             }
             assertThrows(
                 JSONParseException.class,
-                () -> parse(objJson, JSONReadFeature.NAN_INF_NUMBERS)
+                () -> parse(objJson, JSONFeature.NAN_INF_NUMBERS)
             );
             assertThrows(
                 JSONParseException.class,
@@ -127,17 +127,17 @@ public class NonNumericTests {
             if (Double.isNaN(value)) {
                 assertThrows(
                     JSONParseException.class,
-                    () -> parse(arrJson, JSONReadFeature.NAN_INF_NUMBERS, JSONReadFeature.LEADING_PLUS_SIGN)
+                    () -> parse(arrJson, JSONFeature.NAN_INF_NUMBERS, JSONFeature.LEADING_PLUS_SIGN)
                 );
             } else {
                 assertEquals(
                     list(value),
-                    parse(arrJson, JSONReadFeature.NAN_INF_NUMBERS, JSONReadFeature.LEADING_PLUS_SIGN)
+                    parse(arrJson, JSONFeature.NAN_INF_NUMBERS, JSONFeature.LEADING_PLUS_SIGN)
                 );
             }
             assertThrows(
                 JSONParseException.class,
-                () -> parse(arrJson, JSONReadFeature.NAN_INF_NUMBERS)
+                () -> parse(arrJson, JSONFeature.NAN_INF_NUMBERS)
             );
             assertThrows(
                 JSONParseException.class,
@@ -152,11 +152,11 @@ public class NonNumericTests {
             String noSign = "{ " + nan + ": \"!@#\" }";
             assertEquals(
                 map(nan, "!@#"),
-                parse(noSign, JSONReadFeature.NAN_INF_NUMBERS, JSONReadFeature.UNQUOTED_FIELD_NAMES)
+                parse(noSign, JSONFeature.NAN_INF_NUMBERS, JSONFeature.UNQUOTED_FIELD_NAMES)
             );
             assertEquals(
                 map(nan, "!@#"),
-                parse(noSign, JSONReadFeature.UNQUOTED_FIELD_NAMES)
+                parse(noSign, JSONFeature.UNQUOTED_FIELD_NAMES)
             );
             assertThrows(
                 JSONParseException.class,
@@ -164,15 +164,15 @@ public class NonNumericTests {
             );
             assertThrows(
                 JSONParseException.class,
-                () -> parse(noSign, JSONReadFeature.NAN_INF_NUMBERS)
+                () -> parse(noSign, JSONFeature.NAN_INF_NUMBERS)
             );
             assertThrows(
                 JSONParseException.class,
-                () -> parse("{ -" + nan + ": 1 }", JSONReadFeature.NAN_INF_NUMBERS, JSONReadFeature.UNQUOTED_FIELD_NAMES)
+                () -> parse("{ -" + nan + ": 1 }", JSONFeature.NAN_INF_NUMBERS, JSONFeature.UNQUOTED_FIELD_NAMES)
             );
             assertThrows(
                 JSONParseException.class,
-                () -> parse("{ +" + nan + ": 1 }", JSONReadFeature.NAN_INF_NUMBERS, JSONReadFeature.UNQUOTED_FIELD_NAMES, JSONReadFeature.LEADING_PLUS_SIGN)
+                () -> parse("{ +" + nan + ": 1 }", JSONFeature.NAN_INF_NUMBERS, JSONFeature.UNQUOTED_FIELD_NAMES, JSONFeature.LEADING_PLUS_SIGN)
             );
         }
     }

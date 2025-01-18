@@ -31,32 +31,32 @@ public class NumberSyntaxTests {
         assertThrows(JSONParseException.class, () -> parse("1e-"));
     }
 
-    private static JSONReadFeature[] except(JSONReadFeature feature) {
-        Set<JSONReadFeature> set = EnumSet.of(
-            JSONReadFeature.LEADING_PLUS_SIGN, JSONReadFeature.LEADING_ZEROS, JSONReadFeature.LEADING_DECIMAL_POINT, JSONReadFeature.TRAILING_DECIMAL_POINT
+    private static JSONFeature[] except(JSONFeature feature) {
+        Set<JSONFeature> set = EnumSet.of(
+            JSONFeature.LEADING_PLUS_SIGN, JSONFeature.LEADING_ZEROS, JSONFeature.LEADING_DECIMAL_POINT, JSONFeature.TRAILING_DECIMAL_POINT
         );
         set.remove(feature);
-        return set.toArray(new JSONReadFeature[0]);
+        return set.toArray(new JSONFeature[0]);
     }
 
     @Test
     public void testNumberExtensions() {
-        assertEquals(123, parse("0123", JSONReadFeature.LEADING_ZEROS));
-        assertEquals(123, parse("+123", JSONReadFeature.LEADING_PLUS_SIGN));
-        assertEquals(0, parse("+0", JSONReadFeature.LEADING_PLUS_SIGN));
-        assertEquals(123.456e-2, parse("+123.456e-2", JSONReadFeature.LEADING_PLUS_SIGN));
+        assertEquals(123, parse("0123", JSONFeature.LEADING_ZEROS));
+        assertEquals(123, parse("+123", JSONFeature.LEADING_PLUS_SIGN));
+        assertEquals(0, parse("+0", JSONFeature.LEADING_PLUS_SIGN));
+        assertEquals(123.456e-2, parse("+123.456e-2", JSONFeature.LEADING_PLUS_SIGN));
 
-        assertEquals(.123, parse(".123", JSONReadFeature.LEADING_DECIMAL_POINT));
-        assertEquals(.123e2, parse(".123e2", JSONReadFeature.LEADING_DECIMAL_POINT));
-        assertEquals(.123e+2, parse(".123e+2", JSONReadFeature.LEADING_DECIMAL_POINT));
-        assertEquals(.123e-2, parse(".123e-2", JSONReadFeature.LEADING_DECIMAL_POINT));
+        assertEquals(.123, parse(".123", JSONFeature.LEADING_DECIMAL_POINT));
+        assertEquals(.123e2, parse(".123e2", JSONFeature.LEADING_DECIMAL_POINT));
+        assertEquals(.123e+2, parse(".123e+2", JSONFeature.LEADING_DECIMAL_POINT));
+        assertEquals(.123e-2, parse(".123e-2", JSONFeature.LEADING_DECIMAL_POINT));
 
-        assertEquals(123., parse("123.", JSONReadFeature.TRAILING_DECIMAL_POINT));
-        assertEquals(123.e2, parse("123.e2", JSONReadFeature.TRAILING_DECIMAL_POINT));
-        assertEquals(123.e+2, parse("123.e+2", JSONReadFeature.TRAILING_DECIMAL_POINT));
-        assertEquals(123.e-2, parse("123.e-2", JSONReadFeature.TRAILING_DECIMAL_POINT));
+        assertEquals(123., parse("123.", JSONFeature.TRAILING_DECIMAL_POINT));
+        assertEquals(123.e2, parse("123.e2", JSONFeature.TRAILING_DECIMAL_POINT));
+        assertEquals(123.e+2, parse("123.e+2", JSONFeature.TRAILING_DECIMAL_POINT));
+        assertEquals(123.e-2, parse("123.e-2", JSONFeature.TRAILING_DECIMAL_POINT));
 
-        assertThrows(JSONParseException.class, () -> parse(".", JSONReadFeature.LEADING_DECIMAL_POINT, JSONReadFeature.TRAILING_DECIMAL_POINT));
+        assertThrows(JSONParseException.class, () -> parse(".", JSONFeature.LEADING_DECIMAL_POINT, JSONFeature.TRAILING_DECIMAL_POINT));
 
         assertThrows(JSONParseException.class, () -> parse("0123"));
         assertThrows(JSONParseException.class, () -> parse("+123"));
@@ -64,10 +64,10 @@ public class NumberSyntaxTests {
         assertThrows(JSONParseException.class, () -> parse(".123"));
         assertThrows(JSONParseException.class, () -> parse("123."));
 
-        assertThrows(JSONParseException.class, () -> parse("0123", except(JSONReadFeature.LEADING_ZEROS)));
-        assertThrows(JSONParseException.class, () -> parse("+123", except(JSONReadFeature.LEADING_PLUS_SIGN)));
-        assertThrows(JSONParseException.class, () -> parse("+0", except(JSONReadFeature.LEADING_PLUS_SIGN)));
-        assertThrows(JSONParseException.class, () -> parse(".123", except(JSONReadFeature.LEADING_DECIMAL_POINT)));
-        assertThrows(JSONParseException.class, () -> parse("123.", except(JSONReadFeature.TRAILING_DECIMAL_POINT)));
+        assertThrows(JSONParseException.class, () -> parse("0123", except(JSONFeature.LEADING_ZEROS)));
+        assertThrows(JSONParseException.class, () -> parse("+123", except(JSONFeature.LEADING_PLUS_SIGN)));
+        assertThrows(JSONParseException.class, () -> parse("+0", except(JSONFeature.LEADING_PLUS_SIGN)));
+        assertThrows(JSONParseException.class, () -> parse(".123", except(JSONFeature.LEADING_DECIMAL_POINT)));
+        assertThrows(JSONParseException.class, () -> parse("123.", except(JSONFeature.TRAILING_DECIMAL_POINT)));
     }
 }

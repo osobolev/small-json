@@ -27,19 +27,19 @@ public class TestUtil {
         return new JSONObject(map);
     }
 
-    public static JSONParseOptions.Builder optBuilder(JSONReadFeature... features) {
+    public static JSONParseOptions.Builder optBuilder(JSONFeature... features) {
         return JSON.options().addFeatures(features);
     }
 
-    public static JSONParseOptions options(JSONReadFeature... features) {
+    public static JSONParseOptions options(JSONFeature... features) {
         return optBuilder(features).buildOptions();
     }
 
-    public static JSON parser(JSONReadFeature... features) {
+    public static JSON parser(JSONFeature... features) {
         return new JSON(options(features));
     }
 
-    public static Object parse(String json, JSONReadFeature... features) {
+    public static Object parse(String json, JSONFeature... features) {
         return parser(features).parse(json);
     }
 }

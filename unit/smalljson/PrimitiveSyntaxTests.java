@@ -29,9 +29,9 @@ public class PrimitiveSyntaxTests {
             JSONParseException.class,
             () -> parse("NULL")
         );
-        assertEquals(true, parse("TRUE", JSONReadFeature.CASE_INSENSITIVE));
-        assertEquals(false, parse("FALSE", JSONReadFeature.CASE_INSENSITIVE));
-        assertNull(parse("NULL", JSONReadFeature.CASE_INSENSITIVE));
+        assertEquals(true, parse("TRUE", JSONFeature.CASE_INSENSITIVE));
+        assertEquals(false, parse("FALSE", JSONFeature.CASE_INSENSITIVE));
+        assertNull(parse("NULL", JSONFeature.CASE_INSENSITIVE));
     }
 
     @Test
@@ -45,7 +45,7 @@ public class PrimitiveSyntaxTests {
             String unquoted = "{ " + key + ": \"!@#\" }";
             assertEquals(
                 map(key, "!@#"),
-                parse(unquoted, JSONReadFeature.UNQUOTED_FIELD_NAMES)
+                parse(unquoted, JSONFeature.UNQUOTED_FIELD_NAMES)
             );
             assertThrows(
                 JSONParseException.class,

@@ -6,11 +6,11 @@ public final class JSONParseOptions {
 
     public static final JSONParseOptions DEFAULT = builder().buildOptions();
 
-    public final Set<JSONReadFeature> features;
+    public final Set<JSONFeature> features;
     public final JSONValueFactory valueFactory;
     public final int maxNestingLevel;
 
-    private JSONParseOptions(Set<JSONReadFeature> features,
+    private JSONParseOptions(Set<JSONFeature> features,
                              JSONValueFactory valueFactory,
                              int maxNestingLevel) {
         this.features = Collections.unmodifiableSet(features);
@@ -24,7 +24,7 @@ public final class JSONParseOptions {
 
     public static final class Builder {
 
-        private final Set<JSONReadFeature> features = EnumSet.noneOf(JSONReadFeature.class);
+        private final Set<JSONFeature> features = EnumSet.noneOf(JSONFeature.class);
         private JSONValueFactory valueFactory = JSONValueFactory.DEFAULT;
         private int maxNestingLevel = 512;
 
@@ -38,7 +38,7 @@ public final class JSONParseOptions {
         /**
          * Replaces existing features
          */
-        public Builder setFeatures(Collection<JSONReadFeature> features) {
+        public Builder setFeatures(Collection<JSONFeature> features) {
             this.features.clear();
             this.features.addAll(features);
             return this;
@@ -47,7 +47,7 @@ public final class JSONParseOptions {
         /**
          * Adds new features
          */
-        public Builder addFeatures(Collection<JSONReadFeature> features) {
+        public Builder addFeatures(Collection<JSONFeature> features) {
             this.features.addAll(features);
             return this;
         }
@@ -55,7 +55,7 @@ public final class JSONParseOptions {
         /**
          * Adds new features
          */
-        public Builder addFeatures(JSONReadFeature... features) {
+        public Builder addFeatures(JSONFeature... features) {
             addFeatures(Arrays.asList(features));
             return this;
         }
@@ -63,7 +63,7 @@ public final class JSONParseOptions {
         /**
          * Adds new feature
          */
-        public Builder feature(JSONReadFeature feature) {
+        public Builder feature(JSONFeature feature) {
             this.features.add(feature);
             return this;
         }

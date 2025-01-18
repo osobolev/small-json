@@ -28,10 +28,10 @@ public class StructureTests {
             "/* 2 */1// 3"
         };
         for (String json : examples) {
-            assertEquals(1, parse(json, JSONReadFeature.JAVA_COMMENTS));
+            assertEquals(1, parse(json, JSONFeature.JAVA_COMMENTS));
             assertThrows(JSONParseException.class, () -> parse(json));
         }
-        assertThrows(JSONParseException.class, () -> parse("/* end", JSONReadFeature.JAVA_COMMENTS));
+        assertThrows(JSONParseException.class, () -> parse("/* end", JSONFeature.JAVA_COMMENTS));
     }
 
     private static JSONParser rawParser(String json) {
@@ -98,9 +98,9 @@ public class StructureTests {
 
     @Test
     public void testExtraChars() {
-        assertEquals(1, parse("1nextra", JSONReadFeature.EXTRA_CHARS));
-        assertEquals(list(1), parse("[1]extra", JSONReadFeature.EXTRA_CHARS));
-        assertEquals(map("x", 1), parse("{ \"x\":1 }extra", JSONReadFeature.EXTRA_CHARS));
+        assertEquals(1, parse("1nextra", JSONFeature.EXTRA_CHARS));
+        assertEquals(list(1), parse("[1]extra", JSONFeature.EXTRA_CHARS));
+        assertEquals(map("x", 1), parse("{ \"x\":1 }extra", JSONFeature.EXTRA_CHARS));
 
         assertThrows(JSONParseException.class, () -> parse("1nextra"));
         assertThrows(JSONParseException.class, () -> parse("[1]extra"));

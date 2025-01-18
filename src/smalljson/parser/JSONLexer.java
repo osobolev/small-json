@@ -2,7 +2,7 @@ package smalljson.parser;
 
 import smalljson.JSONParseException;
 import smalljson.JSONParseOptions;
-import smalljson.JSONReadFeature;
+import smalljson.JSONFeature;
 import smalljson.JSONValueFactory;
 
 import java.io.IOException;
@@ -36,16 +36,16 @@ public final class JSONLexer {
     public JSONLexer(JSONParseOptions options, Reader input) {
         this.input = input;
         this.valueFactory = options.valueFactory;
-        this.comments = options.features.contains(JSONReadFeature.JAVA_COMMENTS);
-        this.singleQuotes = options.features.contains(JSONReadFeature.SINGLE_QUOTES);
-        this.invalidEscapes = options.features.contains(JSONReadFeature.INVALID_ESCAPES);
-        this.unescapedControls = options.features.contains(JSONReadFeature.STRING_CONTROL_CHARS);
-        this.caseInsensitive = options.features.contains(JSONReadFeature.CASE_INSENSITIVE);
-        this.specialNumbers = options.features.contains(JSONReadFeature.NAN_INF_NUMBERS);
-        this.leadingPlus = options.features.contains(JSONReadFeature.LEADING_PLUS_SIGN);
-        this.leadingZeros = options.features.contains(JSONReadFeature.LEADING_ZEROS);
-        this.leadingPoint = options.features.contains(JSONReadFeature.LEADING_DECIMAL_POINT);
-        this.trailingPoint = options.features.contains(JSONReadFeature.TRAILING_DECIMAL_POINT);
+        this.comments = options.features.contains(JSONFeature.JAVA_COMMENTS);
+        this.singleQuotes = options.features.contains(JSONFeature.SINGLE_QUOTES);
+        this.invalidEscapes = options.features.contains(JSONFeature.INVALID_ESCAPES);
+        this.unescapedControls = options.features.contains(JSONFeature.STRING_CONTROL_CHARS);
+        this.caseInsensitive = options.features.contains(JSONFeature.CASE_INSENSITIVE);
+        this.specialNumbers = options.features.contains(JSONFeature.NAN_INF_NUMBERS);
+        this.leadingPlus = options.features.contains(JSONFeature.LEADING_PLUS_SIGN);
+        this.leadingZeros = options.features.contains(JSONFeature.LEADING_ZEROS);
+        this.leadingPoint = options.features.contains(JSONFeature.LEADING_DECIMAL_POINT);
+        this.trailingPoint = options.features.contains(JSONFeature.TRAILING_DECIMAL_POINT);
 
         this.ch0 = -1;
         this.ch1 = nextCodepoint(-1, -1);

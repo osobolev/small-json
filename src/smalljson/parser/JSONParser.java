@@ -22,12 +22,12 @@ public final class JSONParser {
     public JSONParser(JSONParseOptions options, Reader rdr) {
         this.lexer = new JSONLexer(options, rdr);
         this.options = options;
-        this.specialNumbers = options.features.contains(JSONReadFeature.NAN_INF_NUMBERS);
-        this.allowMissingValues = options.features.contains(JSONReadFeature.ARRAY_MISSING_VALUES);
-        this.allowTrailingComma = options.features.contains(JSONReadFeature.TRAILING_COMMA);
-        this.unquotedFields = options.features.contains(JSONReadFeature.UNQUOTED_FIELD_NAMES);
-        this.duplicateKeys = options.features.contains(JSONReadFeature.DUPLICATE_FIELD_NAMES);
-        this.extraChars = options.features.contains(JSONReadFeature.EXTRA_CHARS);
+        this.specialNumbers = options.features.contains(JSONFeature.NAN_INF_NUMBERS);
+        this.allowMissingValues = options.features.contains(JSONFeature.ARRAY_MISSING_VALUES);
+        this.allowTrailingComma = options.features.contains(JSONFeature.TRAILING_COMMA);
+        this.unquotedFields = options.features.contains(JSONFeature.UNQUOTED_FIELD_NAMES);
+        this.duplicateKeys = options.features.contains(JSONFeature.DUPLICATE_FIELD_NAMES);
+        this.extraChars = options.features.contains(JSONFeature.EXTRA_CHARS);
 
         this.current = lexer.nextToken();
     }

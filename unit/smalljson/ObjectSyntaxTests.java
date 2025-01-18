@@ -45,26 +45,26 @@ public class ObjectSyntaxTests {
     @Test
     public void testObjectExtensions() {
         String trailing = "{ \"x\":1, \"y\":2, }";
-        assertEquals(map("x", 1, "y", 2), parse(trailing, JSONReadFeature.TRAILING_COMMA));
-        assertEquals(map("x", 1, "y", 2), parse(trailing, JSONReadFeature.TRAILING_COMMA, JSONReadFeature.ARRAY_MISSING_VALUES));
+        assertEquals(map("x", 1, "y", 2), parse(trailing, JSONFeature.TRAILING_COMMA));
+        assertEquals(map("x", 1, "y", 2), parse(trailing, JSONFeature.TRAILING_COMMA, JSONFeature.ARRAY_MISSING_VALUES));
         assertThrows(
             JSONParseException.class,
             () -> parse(trailing)
         );
         assertThrows(
             JSONParseException.class,
-            () -> parse(trailing, JSONReadFeature.ARRAY_MISSING_VALUES)
+            () -> parse(trailing, JSONFeature.ARRAY_MISSING_VALUES)
         );
 
         String unquoted = "{ x:1, y:2 }";
-        assertEquals(map("x", 1, "y", 2), parse(unquoted, JSONReadFeature.UNQUOTED_FIELD_NAMES));
+        assertEquals(map("x", 1, "y", 2), parse(unquoted, JSONFeature.UNQUOTED_FIELD_NAMES));
         assertThrows(
             JSONParseException.class,
             () -> parse(unquoted)
         );
 
         String dup = "{ \"x\":1, \"x\":2 }";
-        assertEquals(map("x", 2), parse(dup, JSONReadFeature.DUPLICATE_FIELD_NAMES));
+        assertEquals(map("x", 2), parse(dup, JSONFeature.DUPLICATE_FIELD_NAMES));
         assertThrows(
             JSONParseException.class,
             () -> parse(dup)

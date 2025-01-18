@@ -231,7 +231,7 @@ public class DemoTests {
             // Enabling support for Java-style comments in JSON:
             JSON factory = JSON
                 .options()
-                .feature(JSONReadFeature.JAVA_COMMENTS)
+                .feature(JSONFeature.JAVA_COMMENTS)
                 .build();
             assertEquals(
                 factory.newObject(),
@@ -242,8 +242,8 @@ public class DemoTests {
             // Enabling support for unquoted field names and single-quoted strings:
             JSON factory = JSON
                 .options()
-                .feature(JSONReadFeature.SINGLE_QUOTES)
-                .feature(JSONReadFeature.UNQUOTED_FIELD_NAMES)
+                .feature(JSONFeature.SINGLE_QUOTES)
+                .feature(JSONFeature.UNQUOTED_FIELD_NAMES)
                 .build();
             assertEquals(
                 factory.newObject().put("name", "Jsonathan"),
@@ -254,8 +254,8 @@ public class DemoTests {
             // Enabling support for missing values in arrays and trailing commas in objects/arrays:
             JSON factory = JSON
                 .options()
-                .feature(JSONReadFeature.ARRAY_MISSING_VALUES)
-                .feature(JSONReadFeature.TRAILING_COMMA)
+                .feature(JSONFeature.ARRAY_MISSING_VALUES)
+                .feature(JSONFeature.TRAILING_COMMA)
                 .build();
             assertEquals(
                 factory.newArray().addAll(1, null, null, 2), // Trailing comma has priority over missing values
@@ -271,11 +271,11 @@ public class DemoTests {
             JSON factory = JSON
                 .options()
                 .addFeatures(
-                    JSONReadFeature.LEADING_PLUS_SIGN,
-                    JSONReadFeature.LEADING_ZEROS,
-                    JSONReadFeature.LEADING_DECIMAL_POINT,
-                    JSONReadFeature.TRAILING_DECIMAL_POINT,
-                    JSONReadFeature.NAN_INF_NUMBERS
+                    JSONFeature.LEADING_PLUS_SIGN,
+                    JSONFeature.LEADING_ZEROS,
+                    JSONFeature.LEADING_DECIMAL_POINT,
+                    JSONFeature.TRAILING_DECIMAL_POINT,
+                    JSONFeature.NAN_INF_NUMBERS
                 )
                 .build();
             assertEquals(123, factory.parse("+123")); // Look! It parses!

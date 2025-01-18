@@ -33,26 +33,26 @@ public class StringSyntaxTests {
         assertThrows(JSONParseException.class, () -> parse("\"\uD83C"));
     }
 
-    private static JSONReadFeature[] except(JSONReadFeature feature) {
-        Set<JSONReadFeature> set = EnumSet.of(
-            JSONReadFeature.INVALID_ESCAPES, JSONReadFeature.SINGLE_QUOTES, JSONReadFeature.STRING_CONTROL_CHARS
+    private static JSONFeature[] except(JSONFeature feature) {
+        Set<JSONFeature> set = EnumSet.of(
+            JSONFeature.INVALID_ESCAPES, JSONFeature.SINGLE_QUOTES, JSONFeature.STRING_CONTROL_CHARS
         );
         set.remove(feature);
-        return set.toArray(new JSONReadFeature[0]);
+        return set.toArray(new JSONFeature[0]);
     }
 
     @Test
     public void testStringExtensions() {
-        assertEquals("x", parse("\"\\x\"", JSONReadFeature.INVALID_ESCAPES));
-        assertEquals("A", parse("\"\\u41\"", JSONReadFeature.INVALID_ESCAPES));
-        assertEquals("A?", parse("\"\\u41?\"", JSONReadFeature.INVALID_ESCAPES));
-        assertEquals("single quotes", parse("'single quotes'", JSONReadFeature.SINGLE_QUOTES));
-        assertEquals("\t", parse("\"\t\"", JSONReadFeature.STRING_CONTROL_CHARS));
+        assertEquals("x", parse("\"\\x\"", JSONFeature.INVALID_ESCAPES));
+        assertEquals("A", parse("\"\\u41\"", JSONFeature.INVALID_ESCAPES));
+        assertEquals("A?", parse("\"\\u41?\"", JSONFeature.INVALID_ESCAPES));
+        assertEquals("single quotes", parse("'single quotes'", JSONFeature.SINGLE_QUOTES));
+        assertEquals("\t", parse("\"\t\"", JSONFeature.STRING_CONTROL_CHARS));
 
-        assertThrows(JSONParseException.class, () -> parse("\"\\x\"", except(JSONReadFeature.INVALID_ESCAPES)));
-        assertThrows(JSONParseException.class, () -> parse("\"\\u41\"", except(JSONReadFeature.INVALID_ESCAPES)));
-        assertThrows(JSONParseException.class, () -> parse("\"\\u41?\"", except(JSONReadFeature.INVALID_ESCAPES)));
-        assertThrows(JSONParseException.class, () -> parse("'single quotes'", except(JSONReadFeature.SINGLE_QUOTES)));
-        assertThrows(JSONParseException.class, () -> parse("\"\t\"", except(JSONReadFeature.STRING_CONTROL_CHARS)));
+        assertThrows(JSONParseException.class, () -> parse("\"\\x\"", except(JSONFeature.INVALID_ESCAPES)));
+        assertThrows(JSONParseException.class, () -> parse("\"\\u41\"", except(JSONFeature.INVALID_ESCAPES)));
+        assertThrows(JSONParseException.class, () -> parse("\"\\u41?\"", except(JSONFeature.INVALID_ESCAPES)));
+        assertThrows(JSONParseException.class, () -> parse("'single quotes'", except(JSONFeature.SINGLE_QUOTES)));
+        assertThrows(JSONParseException.class, () -> parse("\"\t\"", except(JSONFeature.STRING_CONTROL_CHARS)));
     }
 }

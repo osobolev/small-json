@@ -1,6 +1,6 @@
 package smalljson;
 
-public enum JSONReadFeature {
+public enum JSONFeature {
     /**
      * // ...
      * <p>and</p>
