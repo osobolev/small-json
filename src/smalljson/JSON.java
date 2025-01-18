@@ -7,7 +7,7 @@ import java.nio.file.Path;
 
 public final class JSON {
 
-    private final JSONParseOptions options;
+    public final JSONParseOptions options;
 
     public JSON(JSONParseOptions options) {
         this.options = options;
