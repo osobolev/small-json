@@ -5,6 +5,7 @@ import smalljson.JSONParseException;
 import smalljson.JSONParseOptions;
 import smalljson.JSONValueFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
@@ -32,7 +33,7 @@ public final class JSONLexer {
     private int ch2;
 
     public JSONLexer(JSONParseOptions options, Reader input) {
-        this.input = input;
+        this.input = input.markSupported() ? input : new BufferedReader(input);
         this.valueFactory = options.valueFactory;
         this.comments = options.features.contains(JSONFeature.JAVA_COMMENTS);
         this.singleQuotes = options.features.contains(JSONFeature.SINGLE_QUOTES);
