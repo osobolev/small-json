@@ -276,7 +276,6 @@ public class CollectionTests {
             .copy()
             .setFeatures(Collections.singletonList(JSONFeature.TRAILING_COMMA))
             .buildOptions();
-        assertFalse(options3.features.contains(JSONFeature.LEADING_ZEROS));
         assertEquals(Collections.singleton(JSONFeature.TRAILING_COMMA), options3.features);
     }
 }
