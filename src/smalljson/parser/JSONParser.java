@@ -2,6 +2,7 @@ package smalljson.parser;
 
 import smalljson.*;
 
+import java.io.BufferedReader;
 import java.io.Reader;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,8 @@ public final class JSONParser {
     private JSONToken current;
 
     public JSONParser(JSONParseOptions options, Reader rdr) {
-        this.lexer = new JSONLexer(options, rdr);
+        Reader input = rdr.markSupported() ? rdr : new BufferedReader(rdr);
+        this.lexer = new JSONLexer(options, input);
         this.options = options;
         this.specialNumbers = options.features.contains(JSONFeature.NAN_INF_NUMBERS);
         this.allowMissingValues = options.features.contains(JSONFeature.ARRAY_MISSING_VALUES);
