@@ -183,7 +183,7 @@ public final class JSONLexer {
                 ndigits++;
                 unicode = (unicode << 4) + digit;
             }
-            if (!invalidEscapes && ndigits != 4) {
+            if (ndigits != 4 && (ndigits == 0 || !invalidEscapes)) {
                 throw new JSONParseException(index, line, column, "Invalid unicode escape sequence");
             }
             buf.append((char) unicode);
