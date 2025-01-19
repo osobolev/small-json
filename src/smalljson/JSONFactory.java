@@ -7,15 +7,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public final class JSON {
+public final class JSONFactory {
+
+    public static final JSONFactory JSON = new JSONFactory();
 
     private final JSONParseOptions options;
 
-    public JSON(JSONParseOptions options) {
+    public JSONFactory(JSONParseOptions options) {
         this.options = options;
     }
 
-    public JSON() {
+    public JSONFactory() {
         this(JSONParseOptions.DEFAULT);
     }
 

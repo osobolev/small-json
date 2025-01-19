@@ -23,7 +23,7 @@ public class WriterTests {
     @ParameterizedTest
     @ValueSource(ints = {0, 1, -1})
     public void testWriter(int indent) throws IOException {
-        JSON options = SiteUtil.siteOptions();
+        JSONFactory options = SiteUtil.siteOptions();
         SiteUtil.scanSiteTests((name, failing, is) -> {
             if (failing)
                 return;

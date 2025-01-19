@@ -12,11 +12,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static smalljson.TestUtil.factory;
 
 public class CollectionTests {
 
     private static JSONObject newObject(boolean useFactory) {
-        return useFactory ? new JSON().newObject() : new JSONObject();
+        return useFactory ? JSONFactory.JSON.newObject() : new JSONObject();
     }
 
     @ParameterizedTest
@@ -90,7 +91,7 @@ public class CollectionTests {
     }
 
     private static JSONArray newArray(boolean useFactory) {
-        return useFactory ? new JSON().newArray() : new JSONArray();
+        return useFactory ? JSONFactory.JSON.newArray() : new JSONArray();
     }
 
     @ParameterizedTest
@@ -143,7 +144,7 @@ public class CollectionTests {
 
     @Test
     public void testRootApi() {
-        JSON factory = new JSON();
+        JSONFactory factory = factory();
         {
             String json = "{ \"x\": [1, 2, 3], \"y\": {} }";
             assertEquals(
@@ -178,7 +179,7 @@ public class CollectionTests {
 
     @Test
     public void testConversionApi() {
-        JSON factory = new JSON();
+        JSONFactory factory = factory();
         JSONObject object = factory.parseObject(
             "{" +
             "  \"int\": 1," +
@@ -234,7 +235,7 @@ public class CollectionTests {
 
     @Test
     public void testCustomConversionApi() {
-        JSON factory = JSON
+        JSONFactory factory = JSONFactory
             .options()
             .valueFactory(new JSONValueFactory() {
                 @Override
@@ -261,7 +262,7 @@ public class CollectionTests {
 
     @Test
     public void testOptionsApi() {
-        JSONParseOptions options1 = JSON
+        JSONParseOptions options1 = JSONFactory
             .options()
             .maxNestingLevel(10)
             .feature(JSONFeature.LEADING_ZEROS)

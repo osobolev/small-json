@@ -14,7 +14,7 @@ public class ObjectSyntaxTests {
         assertEquals(map("x", 1), parse("{ \"x\":1 }"));
         assertEquals(map("x", 1, "y", 2), parse("{ \"x\":1, \"y\":2 }"));
         assertEquals(map("x", 1, "y", map("z", 3)), parse("{ \"x\":1, \"y\":{ \"z\":3 } }"));
-        assertEquals(map("x", 1, "y", map("z", 3)), parser().parseObject("{ \"x\":1, \"y\":{ \"z\":3 } }"));
+        assertEquals(map("x", 1, "y", map("z", 3)), factory().parseObject("{ \"x\":1, \"y\":{ \"z\":3 } }"));
 
         assertThrows(
             JSONParseException.class,

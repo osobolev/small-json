@@ -35,7 +35,7 @@ public class StructureTests {
     }
 
     private static JSONParser rawParser(String json) {
-        return parser().newParser(new StringReader(json));
+        return factory().newParser(new StringReader(json));
     }
 
     @Test
@@ -52,7 +52,7 @@ public class StructureTests {
 
         assertThrows(
             UncheckedIOException.class,
-            () -> parser().parse(new InputStream() {
+            () -> factory().parse(new InputStream() {
                     @Override
                     public int read() throws IOException {
                         throw new IOException("Fail");
@@ -109,13 +109,13 @@ public class StructureTests {
 
     @Test
     public void testNestingLevels() {
-        JSON options0 = optBuilder().maxNestingLevel(0).build();
+        JSONFactory options0 = optBuilder().maxNestingLevel(0).build();
         options0.parse("0");
 
         assertThrows(JSONParseException.class, () -> options0.parse("[]"));
         assertThrows(JSONParseException.class, () -> options0.parse("{}"));
 
-        JSON options1 = optBuilder().maxNestingLevel(1).build();
+        JSONFactory options1 = optBuilder().maxNestingLevel(1).build();
         options1.parse("0");
         options1.parse("[]");
         options1.parse("[1]");
@@ -125,7 +125,7 @@ public class StructureTests {
         assertThrows(JSONParseException.class, () -> options1.parse("[[]]"));
         assertThrows(JSONParseException.class, () -> options1.parse("[{}]"));
 
-        JSON options2 = optBuilder().maxNestingLevel(2).build();
+        JSONFactory options2 = optBuilder().maxNestingLevel(2).build();
         options2.parse("0");
         options2.parse("[]");
         options2.parseArray("[]");
@@ -160,8 +160,8 @@ public class StructureTests {
         assertThrows(JSONParseException.class, () -> parse("[{]}"));
         assertThrows(JSONParseException.class, () -> parse("{1,2}"));
         assertThrows(JSONParseException.class, () -> parse("[\"x\":1]"));
-        assertThrows(JSONParseException.class, () -> parser().parseArray("{}"));
-        assertThrows(JSONParseException.class, () -> parser().parseObject("[]"));
+        assertThrows(JSONParseException.class, () -> factory().parseArray("{}"));
+        assertThrows(JSONParseException.class, () -> factory().parseObject("[]"));
     }
 
     @Test

@@ -90,8 +90,8 @@ public final class JSONParseOptions {
             return new JSONParseOptions(features, valueFactory, maxNestingLevel);
         }
 
-        public JSON build() {
-            return new JSON(buildOptions());
+        public JSONFactory build() {
+            return new JSONFactory(buildOptions());
         }
     }
 }

@@ -18,7 +18,7 @@ public class CustomizeTests {
                 return bigIntegerValue(sign, digits);
             }
         };
-        JSON options = optBuilder().valueFactory(valueFactory).build();
+        JSONFactory options = optBuilder().valueFactory(valueFactory).build();
         assertEquals(BigInteger.ONE, options.parse("1"));
     }
 
@@ -60,7 +60,7 @@ public class CustomizeTests {
                 return NULL;
             }
         };
-        JSON options = optBuilder().valueFactory(valueFactory).build();
+        JSONFactory options = optBuilder().valueFactory(valueFactory).build();
 
         JSONObject object = options.parseObject("{ \"x\": null }");
         assertEquals(NULL, object.get("x"));

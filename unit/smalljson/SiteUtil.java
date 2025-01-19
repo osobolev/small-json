@@ -18,7 +18,7 @@ public class SiteUtil {
         void consume(String name, boolean failing, InputStream is);
     }
 
-    public static JSON siteOptions() {
+    public static JSONFactory siteOptions() {
         return optBuilder().maxNestingLevel(19).build();
     }
 

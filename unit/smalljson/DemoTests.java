@@ -10,6 +10,8 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import static smalljson.JSONFactory.JSON;
+
 public class DemoTests {
 
     /**
@@ -17,9 +19,8 @@ public class DemoTests {
      */
     @Test
     public void simpleDemo() {
-        JSON factory = new JSON();
-        // Parse JSON text:
-        JSONObject object = factory.parseObject("{ \"id\": 123, \"name\": \"Jsonathan\" }");
+        // Parse JSON text (note the static import of smalljson.JSONFactory.JSON):
+        JSONObject object = JSON.parseObject("{ \"id\": 123, \"name\": \"Jsonathan\" }");
 
         {
             // Check field values with typed get() calls:
@@ -48,13 +49,12 @@ public class DemoTests {
     }
 
     /**
-     * Demonstration of JSON parsing and access to JSON object fields
+     * Demonstration of JSON parsing and access to JSON array items
      */
     @Test
     public void simpleArrayDemo() {
-        JSON factory = new JSON();
         // Parse JSON text:
-        JSONArray array = factory.parseArray("[1974, \"ABBA\"]");
+        JSONArray array = JSON.parseArray("[1974, \"ABBA\"]");
 
         {
             // Check item values with typed get() calls:
@@ -78,9 +78,8 @@ public class DemoTests {
      */
     @Test
     public void nullMissingDemo() {
-        JSON factory = new JSON();
         // Parse JSON text with a field 'empty' with 'null' value:
-        JSONObject object = factory.parseObject("{ \"empty\": null }");
+        JSONObject object = JSON.parseObject("{ \"empty\": null }");
 
         // You can check if an object has a field:
         assertTrue(object.has("empty"));
@@ -106,16 +105,15 @@ public class DemoTests {
      */
     @Test
     public void jsonWriteDemo() {
-        JSON factory = new JSON();
         // Create new object:
-        JSONObject object = factory.newObject();
+        JSONObject object = JSON.newObject();
         // Fill it with data:
         object
             .put("id", 123)
             .put("name", "Jsonathan")
-            .put("titles", factory.newArray().addAll("King", "Emperor", "Sultan"))
+            .put("titles", JSON.newArray().addAll("King", "Emperor", "Sultan"))
             .put("address",
-                 factory.newObject()
+                 JSON.newObject()
                         .put("street", "Coronation st.")
                         .put("house", 221));
 
@@ -131,9 +129,8 @@ public class DemoTests {
      */
     @Test
     public void conversionDemo() {
-        JSON factory = new JSON();
         // Create new object:
-        JSONObject object = factory.newObject();
+        JSONObject object = JSON.newObject();
         // Fill it with data.
         // Note that we use simple Maps and Lists for field values, not JSONObject/JSONArray!
         Map<String, Object> address = new HashMap<>();
@@ -146,10 +143,10 @@ public class DemoTests {
             .put("titles", titles)
             .put("address",address);
 
-        JSONArray jsonTitles = factory.newArray().addAll("King", "Emperor", "Sultan");
+        JSONArray jsonTitles = JSON.newArray().addAll("King", "Emperor", "Sultan");
         // List that is stored in the object is automatically converted to JSONArray:
         assertEquals(jsonTitles, object.get("titles", JSONArray.class));
-        JSONObject jsonAddress = factory.newObject().put("street", "Coronation st.").put("house", 221);
+        JSONObject jsonAddress = JSON.newObject().put("street", "Coronation st.").put("house", 221);
         // Map that is stored in the object is automatically converted to JSONObject:
         assertEquals(jsonAddress, object.get("address", JSONObject.class));
 
@@ -183,10 +180,9 @@ public class DemoTests {
      */
     @Test
     public void parseAnyDemo() {
-        JSON factory = new JSON();
         {
             // Parse JSON text with object definition:
-            Object value = factory.parse("{ \"id\": 123, \"name\": \"Jsonathan\" }");
+            Object value = JSON.parse("{ \"id\": 123, \"name\": \"Jsonathan\" }");
             // Object is always parsed as JSONObject:
             assertInstanceOf(JSONObject.class, value);
             // You can cast it to JSONObject and access its fields:
@@ -197,7 +193,7 @@ public class DemoTests {
         }
         {
             // Parse JSON text with array definition:
-            Object value = factory.parse("[1974, \"ABBA\"]");
+            Object value = JSON.parse("[1974, \"ABBA\"]");
             // Array is always parsed as JSONArray:
             assertInstanceOf(JSONArray.class, value);
             // You can cast it to JSONObject and access its fields:
@@ -209,7 +205,7 @@ public class DemoTests {
         }
         {
             // Parse JSON text with simple value:
-            Object value = factory.parse("1000");
+            Object value = JSON.parse("1000");
             // Array is always parsed as JSONArray:
             assertInstanceOf(Number.class, value);
             // You can cast it to JSONObject and access its fields:
@@ -229,7 +225,7 @@ public class DemoTests {
     public void parsingExtensionsDemo() {
         {
             // Enabling support for Java-style comments in JSON:
-            JSON factory = JSON
+            JSONFactory factory = JSONFactory
                 .options()
                 .feature(JSONFeature.JAVA_COMMENTS)
                 .build();
@@ -240,7 +236,7 @@ public class DemoTests {
         }
         {
             // Enabling support for unquoted field names and single-quoted strings:
-            JSON factory = JSON
+            JSONFactory factory = JSONFactory
                 .options()
                 .feature(JSONFeature.SINGLE_QUOTES)
                 .feature(JSONFeature.UNQUOTED_FIELD_NAMES)
@@ -252,7 +248,7 @@ public class DemoTests {
         }
         {
             // Enabling support for missing values in arrays and trailing commas in objects/arrays:
-            JSON factory = JSON
+            JSONFactory factory = JSONFactory
                 .options()
                 .feature(JSONFeature.ARRAY_MISSING_VALUES)
                 .feature(JSONFeature.TRAILING_COMMA)
@@ -268,7 +264,7 @@ public class DemoTests {
         }
         {
             // Enabling support for non-standard numbers:
-            JSON factory = JSON
+            JSONFactory factory = JSONFactory
                 .options()
                 .addFeatures(
                     JSONFeature.LEADING_PLUS_SIGN,

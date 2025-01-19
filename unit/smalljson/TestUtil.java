@@ -28,14 +28,14 @@ public class TestUtil {
     }
 
     public static JSONParseOptions.Builder optBuilder(JSONFeature... features) {
-        return JSON.options().addFeatures(features);
+        return JSONFactory.options().addFeatures(features);
     }
 
-    public static JSON parser(JSONFeature... features) {
+    public static JSONFactory factory(JSONFeature... features) {
         return optBuilder(features).build();
     }
 
     public static Object parse(String json, JSONFeature... features) {
-        return parser(features).parse(json);
+        return factory(features).parse(json);
     }
 }

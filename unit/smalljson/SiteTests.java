@@ -11,7 +11,7 @@ public class SiteTests {
 
     @Test
     public void runJsonSiteTests() throws IOException {
-        JSON options = SiteUtil.siteOptions();
+        JSONFactory options = SiteUtil.siteOptions();
         SiteUtil.scanSiteTests((name, failing, is) -> {
             if (failing) {
                 assertThrows(
