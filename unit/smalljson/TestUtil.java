@@ -31,12 +31,8 @@ public class TestUtil {
         return JSON.options().addFeatures(features);
     }
 
-    public static JSONParseOptions options(JSONFeature... features) {
-        return optBuilder(features).buildOptions();
-    }
-
     public static JSON parser(JSONFeature... features) {
-        return new JSON(options(features));
+        return optBuilder(features).build();
     }
 
     public static Object parse(String json, JSONFeature... features) {

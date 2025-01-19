@@ -35,7 +35,7 @@ public class StructureTests {
     }
 
     private static JSONParser rawParser(String json) {
-        return new JSONParser(options(), new StringReader(json));
+        return parser().newParser(new StringReader(json));
     }
 
     @Test
