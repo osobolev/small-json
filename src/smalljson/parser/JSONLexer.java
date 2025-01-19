@@ -267,7 +267,7 @@ public final class JSONLexer {
         }
         if (specialNumbers) {
             int ch = ch();
-            if (ch >= 0 && Character.isJavaIdentifierStart(ch)) {
+            if (Character.isJavaIdentifierStart(ch)) {
                 String ident = parseIdent();
                 if (isInfinity(ident)) {
                     Object value = valueFactory.infinityValue(isign);
