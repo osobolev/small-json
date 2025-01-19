@@ -204,7 +204,6 @@ public class DemoTests {
             Object value = JSON.parse("1000");
             // Array is always parsed as JSONArray:
             assertInstanceOf(Number.class, value);
-            // You can cast it to JSONObject and access its fields:
             // By default integer numbers are put in the minimal type of (int, long, BigInteger)
             // that can contain them, but you can use Number for any of these types:
             Number number = (Number) value;
