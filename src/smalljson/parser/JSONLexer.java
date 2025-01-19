@@ -169,16 +169,19 @@ public final class JSONLexer {
             int unicode = 0;
             while (ndigits < 4) {
                 int uch = ch();
-                if (uch < 0)
-                    break;
-                int digit = Character.digit(uch, 16);
-                if (digit >= 0) {
-                    next();
-                    ndigits++;
-                    unicode = (unicode << 4) + digit;
+                int digit;
+                if (uch >= '0' && uch <= '9') {
+                    digit = uch - '0';
+                } else if (uch >= 'a' && uch <= 'f') {
+                    digit = uch - 'a' + 10;
+                } else if (uch >= 'A' && uch <= 'F') {
+                    digit = uch - 'A' + 10;
                 } else {
                     break;
                 }
+                next();
+                ndigits++;
+                unicode = (unicode << 4) + digit;
             }
             if (!invalidEscapes && ndigits != 4) {
                 throw new JSONParseException(index, line, column, "Invalid unicode escape sequence");
