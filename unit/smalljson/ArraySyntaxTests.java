@@ -43,7 +43,7 @@ public class ArraySyntaxTests {
 
         String missing = "[1, , , 2, 3]";
         assertEquals(list(1, null, null, 2, 3), parse(missing, JSONFeature.ARRAY_MISSING_VALUES));
-        assertEquals(list(1, null, null, 2, 3), parse(missing, JSONFeature.ARRAY_MISSING_VALUES, JSONFeature.TRAILING_COMMA, JSONFeature.ARRAY_MISSING_VALUES));
+        assertEquals(list(1, null, null, 2, 3), parse(missing, JSONFeature.TRAILING_COMMA, JSONFeature.ARRAY_MISSING_VALUES));
         assertThrows(
             JSONParseException.class,
             () -> parse(missing)
