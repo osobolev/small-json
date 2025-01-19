@@ -186,10 +186,8 @@ public class DemoTests {
             // Object is always parsed as JSONObject:
             assertInstanceOf(JSONObject.class, value);
             // You can cast it to JSONObject and access its fields:
-            assertDoesNotThrow(() -> {
-                JSONObject object = (JSONObject) value;
-                assertEquals(123, object.get("id", int.class));
-            });
+            JSONObject object = (JSONObject) value;
+            assertEquals(123, object.get("id", int.class));
         }
         {
             // Parse JSON text with array definition:
@@ -197,11 +195,9 @@ public class DemoTests {
             // Array is always parsed as JSONArray:
             assertInstanceOf(JSONArray.class, value);
             // You can cast it to JSONObject and access its fields:
-            assertDoesNotThrow(() -> {
-                JSONArray array = (JSONArray) value;
-                assertEquals(1974, array.get(0, int.class));
-                assertEquals("ABBA", array.get(1, String.class));
-            });
+            JSONArray array = (JSONArray) value;
+            assertEquals(1974, array.get(0, int.class));
+            assertEquals("ABBA", array.get(1, String.class));
         }
         {
             // Parse JSON text with simple value:
@@ -209,12 +205,10 @@ public class DemoTests {
             // Array is always parsed as JSONArray:
             assertInstanceOf(Number.class, value);
             // You can cast it to JSONObject and access its fields:
-            assertDoesNotThrow(() -> {
-                // By default integer numbers are put in the minimal type of (int, long, BigInteger)
-                // that can contain them, but you can use Number for any of these types:
-                Number number = (Number) value;
-                assertEquals(1000, number.intValue());
-            });
+            // By default integer numbers are put in the minimal type of (int, long, BigInteger)
+            // that can contain them, but you can use Number for any of these types:
+            Number number = (Number) value;
+            assertEquals(1000, number.intValue());
         }
     }
 
