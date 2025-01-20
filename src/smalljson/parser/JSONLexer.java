@@ -28,9 +28,9 @@ public final class JSONLexer {
     private long index = 0;
     private int line = 1;
     private int column = 1;
-    private int ch0;
-    private int ch1;
-    private int ch2;
+    private int ch0 = -1;
+    private int ch1 = -1;
+    private int ch2 = -1;
 
     public JSONLexer(JSONParseOptions options, Reader input) {
         this.input = input.markSupported() ? input : new BufferedReader(input);
@@ -46,12 +46,11 @@ public final class JSONLexer {
         this.leadingPoint = options.features.contains(JSONFeature.LEADING_DECIMAL_POINT);
         this.trailingPoint = options.features.contains(JSONFeature.TRAILING_DECIMAL_POINT);
 
-        this.ch0 = -1;
-        this.ch1 = nextCodepoint(-1, -1);
-        this.ch2 = nextCodepoint(-1, ch1);
+        this.ch1 = nextCodepoint();
+        this.ch2 = nextCodepoint();
     }
 
-    private void moveLocation(int ch0, int ch1) {
+    private void moveLocation() {
         if (ch1 < 0)
             return;
         index += ch1 >= Character.MIN_SUPPLEMENTARY_CODE_POINT ? 2 : 1;
@@ -65,7 +64,7 @@ public final class JSONLexer {
         }
     }
 
-    private int nextCodepoint(int prev0, int prev1) {
+    private int nextCodepoint() {
         try {
             int c1 = input.read();
             if (c1 < 0)
@@ -83,7 +82,7 @@ public final class JSONLexer {
                     error = "Missing Unicode low surrogate";
                 }
             }
-            moveLocation(prev0, prev1);
+            moveLocation();
             throw new JSONParseException(index, line, column, error);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
@@ -95,10 +94,10 @@ public final class JSONLexer {
     }
 
     private void next() {
-        moveLocation(ch0, ch1);
+        moveLocation();
         ch0 = ch1;
         ch1 = ch2;
-        ch2 = nextCodepoint(ch0, ch1);
+        ch2 = nextCodepoint();
     }
 
     private void skipSpaces() {
