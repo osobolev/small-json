@@ -7,6 +7,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static smalljson.TestUtil.map;
 import static smalljson.TestUtil.parse;
 
 public class WriterTests {
@@ -15,8 +16,8 @@ public class WriterTests {
         if (indent < 0) {
             return JSONWriter.toString(obj);
         } else {
-            String indentStr = indent == 0 ? "" : "  ";
-            return JSONWriter.toString(obj, indentStr);
+            JSONWriteOptions options = indent == 0 ? JSONWriteOptions.COMPACT : JSONWriteOptions.PRETTY;
+            return JSONWriter.toString(options, obj);
         }
     }
 
@@ -41,12 +42,18 @@ public class WriterTests {
     @Test
     public void testArray() {
         int[] array = {1, 2};
-        assertEquals("[1,2]", JSONWriter.toString(array, ""));
+        assertEquals("[1,2]", JSONWriter.toString(JSONWriteOptions.COMPACT, array));
+        assertEquals("[1, 2]", JSONWriter.toString(new JSONWriteOptions("", ": ", ", ", ""), array));
+
+        JSONObject object = map("x", 1, "y", 2);
+        assertEquals("{\"x\":1,\"y\":2}", JSONWriter.toString(JSONWriteOptions.COMPACT, object));
+        assertEquals("{\"x\": 1, \"y\": 2}", JSONWriter.toString(new JSONWriteOptions("", ": ", ", ", ""), object));
+        assertEquals("{\"x\" : 1, \"y\" : 2}", JSONWriter.toString(new JSONWriteOptions("", " : ", ", ", ""), object));
     }
 
     @Test
     public void testRaw() {
         JSONWriter.RawValue raw = () -> "xyzzy";
-        assertEquals("xyzzy", JSONWriter.toString(raw, ""));
+        assertEquals("xyzzy", JSONWriter.toString(JSONWriteOptions.COMPACT, raw));
     }
 }

@@ -1,8 +1,7 @@
 package smalljson;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
@@ -17,53 +16,63 @@ public final class JSONWriter {
         String rawJsonOutput();
     }
 
-    private final PrintWriter pw;
+    private final Appendable out;
     private final String indent;
-    private final String space;
+    private final String colon;
+    private final String comma;
+    private final String eoln;
 
-    public JSONWriter(PrintWriter pw, String indent) {
-        this.pw = pw;
-        this.indent = indent;
-        this.space = indent.isEmpty() ? "" : " ";
+    public JSONWriter(JSONWriteOptions options, Appendable out) {
+        this.out = out;
+        this.indent = options.indent;
+        this.colon = options.colon;
+        this.comma = options.comma;
+        this.eoln = options.eoln;
     }
 
-    public static void writeTo(Object obj, String indent, Writer out) {
-        PrintWriter pw = out instanceof PrintWriter ? (PrintWriter) out : new PrintWriter(out);
-        new JSONWriter(pw, indent).write(obj);
+    public static void writeTo(JSONWriteOptions options, Object obj, Appendable out) throws IOException {
+        new JSONWriter(options, out).write(obj);
     }
 
-    public static String toString(Object obj, String indent) {
-        StringWriter sw = new StringWriter();
-        writeTo(obj, indent, sw);
-        return sw.toString();
+    public static void writeTo(Object obj, Appendable out) throws IOException {
+        writeTo(JSONWriteOptions.COMPACT, obj, out);
+    }
+
+    public static String toString(JSONWriteOptions options, Object obj) {
+        StringBuilder buf = new StringBuilder();
+        try {
+            writeTo(options, obj, buf);
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+        return buf.toString();
     }
 
     public static String toString(Object obj) {
-        return toString(obj, DEFAULT_INDENT);
+        return toString(JSONWriteOptions.PRETTY, obj);
     }
 
-    private void print(int nestingLevel, String str) {
+    private void print(int nestingLevel, String str) throws IOException {
         if (!indent.isEmpty()) {
             for (int i = 0; i < nestingLevel; i++) {
-                pw.print(indent);
+                out.append(indent);
             }
         }
-        pw.print(str);
+        out.append(str);
     }
 
-    private void print(String str) {
-        pw.print(str);
+    private void print(String str) throws IOException {
+        out.append(str);
     }
 
-    private void println(String str) {
-        if (indent.isEmpty()) {
-            pw.print(str);
-        } else {
-            pw.println(str);
+    private void println(String str) throws IOException {
+        out.append(str);
+        if (!indent.isEmpty()) {
+            out.append(eoln);
         }
     }
 
-    private void writeObject(int nestingLevel, boolean empty, Iterable<? extends Map.Entry<?, ?>> map) {
+    private void writeObject(int nestingLevel, boolean empty, Iterable<? extends Map.Entry<?, ?>> map) throws IOException {
         if (empty) {
             print("{}");
         } else {
@@ -73,10 +82,11 @@ public final class JSONWriter {
                 if (first) {
                     first = false;
                 } else {
-                    println(",");
+                    println(comma);
                 }
                 String key = String.valueOf(entry.getKey());
-                print(nestingLevel + 1, "\"" + escape(key) + "\":" + space);
+                print(nestingLevel + 1, "\"" + escape(key) + "\"");
+                print(colon);
                 Object value = entry.getValue();
                 write(nestingLevel + 1, value);
             }
@@ -85,7 +95,7 @@ public final class JSONWriter {
         }
     }
 
-    private void writeArray(int nestingLevel, boolean empty, Iterable<?> collection) {
+    private void writeArray(int nestingLevel, boolean empty, Iterable<?> collection) throws IOException {
         if (empty) {
             print("[]");
         } else {
@@ -95,7 +105,7 @@ public final class JSONWriter {
                 if (first) {
                     first = false;
                 } else {
-                    println(",");
+                    println(comma);
                 }
                 print(nestingLevel + 1, "");
                 write(nestingLevel + 1, item);
@@ -144,7 +154,7 @@ public final class JSONWriter {
         return buf.toString();
     }
 
-    public void write(int nestingLevel, Object value) {
+    public void write(int nestingLevel, Object value) throws IOException {
         if (value == null) {
             print("null");
         } else if (value instanceof JSONObject) {
@@ -176,7 +186,7 @@ public final class JSONWriter {
         }
     }
 
-    public void write(Object obj) {
+    public void write(Object obj) throws IOException {
         write(0, obj);
     }
 
