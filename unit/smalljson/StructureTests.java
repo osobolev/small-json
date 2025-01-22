@@ -84,7 +84,7 @@ public class StructureTests {
         testLocation("\r\r@", 2, 3, 1);
         testLocation("\n\n@", 2, 3, 1);
 
-        testLocation("[\"\uD83C\uDF55\", @", 7, 1, 7);
+        testLocation("[\"\uD83C\uDF55\", @", 7, 1, 8);
         testLocation("[\"\uD83C\uDF55\", \n@", 8, 2, 1);
         testLocation("[\"\uD83C\uDF55\", \r@", 8, 2, 1);
         testLocation("[\"\uD83C\uDF55\", \r\n@", 9, 2, 1);
@@ -93,7 +93,7 @@ public class StructureTests {
         testLocation("[\"\uD83C\uDF55\", \n\n@", 9, 3, 1);
         testLocation("[\"\uD83C\uDF55\"\r,\r\n\"\uD83C\uDF55\"\n\r,\n@", 17, 6, 1);
 
-        testLocation("[ 1, \"\uD83C\uDF55\", \"\uD83C\" ]", 12, 1, 12);
+        testLocation("[ 1, \"\uD83C\uDF55\", \"\uD83C\"@", 14, 1, 15);
     }
 
     @Test

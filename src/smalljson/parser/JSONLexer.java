@@ -28,7 +28,7 @@ public final class JSONLexer {
     private long index = 0;
     private int line = 1;
     private int column = 1;
-    private int ch0 = -1;
+    private int ch0 = 0;
     private int ch1 = -1;
     private int ch2 = -1;
 
@@ -46,14 +46,14 @@ public final class JSONLexer {
         this.leadingPoint = options.features.contains(JSONFeature.LEADING_DECIMAL_POINT);
         this.trailingPoint = options.features.contains(JSONFeature.TRAILING_DECIMAL_POINT);
 
-        this.ch1 = nextCodepoint();
-        this.ch2 = nextCodepoint();
+        this.ch1 = nextChar();
+        this.ch2 = nextChar();
     }
 
     private void moveLocation() {
         if (ch1 < 0)
             return;
-        index += ch1 >= Character.MIN_SUPPLEMENTARY_CODE_POINT ? 2 : 1;
+        index++;
         if (ch1 == '\r' || ch1 == '\n') {
             if (!(ch0 == '\r' && ch1 == '\n')) {
                 line++;
@@ -64,26 +64,9 @@ public final class JSONLexer {
         }
     }
 
-    private int nextCodepoint() {
+    private int nextChar() {
         try {
-            int c1 = input.read();
-            if (c1 < 0)
-                return -1;
-            if (!Character.isHighSurrogate((char) c1))
-                return c1;
-            int c2 = input.read();
-            String error;
-            if (c2 < 0) {
-                error = "Unexpected EOF after Unicode high surrogate";
-            } else {
-                if (Character.isLowSurrogate((char) c2)) {
-                    return Character.toCodePoint((char) c1, (char) c2);
-                } else {
-                    error = "Missing Unicode low surrogate";
-                }
-            }
-            moveLocation();
-            throw new JSONParseException(index, line, column, error);
+            return input.read();
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
@@ -97,7 +80,7 @@ public final class JSONLexer {
         moveLocation();
         ch0 = ch1;
         ch1 = ch2;
-        ch2 = nextCodepoint();
+        ch2 = nextChar();
     }
 
     private void skipSpaces() {
@@ -147,9 +130,9 @@ public final class JSONLexer {
         if (ch < 0) {
             throw new JSONParseException(index, line, column, "Unterminated escape sequence");
         }
-        int escape;
+        char escape;
         if (ch == '"' || ch == '\\' || ch == '/') {
-            escape = ch;
+            escape = (char) ch;
         } else if (ch == 'b') {
             escape = '\b';
         } else if (ch == 'f') {
@@ -192,10 +175,10 @@ public final class JSONLexer {
             if (!invalidEscapes) {
                 throw new JSONParseException(index, line, column, "Invalid escape sequence");
             }
-            escape = ch;
+            escape = (char) ch;
         }
         next();
-        buf.appendCodePoint(escape);
+        buf.append(escape);
     }
 
     private JSONToken parseString(long index, int line, int column, int quote) {
@@ -219,7 +202,7 @@ public final class JSONLexer {
                 throw new JSONParseException(index, line, column, "Non-escaped control character");
             }
             next();
-            buf.appendCodePoint(ch);
+            buf.append((char) ch);
         }
         return new JSONToken(JSONTokenType.STRING, buf.toString(), index, line, column);
     }
@@ -336,13 +319,13 @@ public final class JSONLexer {
 
     private String parseIdent() {
         StringBuilder buf = new StringBuilder();
-        buf.appendCodePoint(ch());
+        buf.append((char) ch());
         next();
         while (true) {
             int ch = ch();
             if (Character.isJavaIdentifierPart(ch)) {
                 next();
-                buf.appendCodePoint(ch);
+                buf.append((char) ch);
             } else {
                 break;
             }

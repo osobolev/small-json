@@ -29,7 +29,6 @@ public class StringSyntaxTests {
         assertThrows(JSONParseException.class, () -> parse("\"\\"));
         assertThrows(JSONParseException.class, () -> parse("\"end"));
         assertThrows(JSONParseException.class, () -> parse("\"\\u01"));
-        assertThrows(JSONParseException.class, () -> parse("\"\uD83C\""));
         assertThrows(JSONParseException.class, () -> parse("\"\uD83C"));
     }
 
