@@ -2,7 +2,6 @@ package smalljson.parser;
 
 import smalljson.*;
 
-import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +18,7 @@ public final class JSONParser {
 
     private JSONToken current;
 
-    public JSONParser(JSONParseOptions options, Reader rdr) {
+    public JSONParser(JSONParseOptions options, FastReader rdr) {
         this.lexer = new JSONLexer(options, rdr);
         this.options = options;
         this.specialNumbers = options.features.contains(JSONFeature.NAN_INF_NUMBERS);

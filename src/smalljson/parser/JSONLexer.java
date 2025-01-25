@@ -5,14 +5,12 @@ import smalljson.JSONParseException;
 import smalljson.JSONParseOptions;
 import smalljson.JSONValueFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.io.UncheckedIOException;
 
 public final class JSONLexer {
 
-    private final Reader input;
+    private final FastReader input;
     private final JSONValueFactory valueFactory;
     private final boolean comments;
     private final boolean singleQuotes;
@@ -32,8 +30,8 @@ public final class JSONLexer {
     private int ch1 = -1;
     private int ch2 = -1;
 
-    public JSONLexer(JSONParseOptions options, Reader input) {
-        this.input = input.markSupported() ? input : new BufferedReader(input);
+    public JSONLexer(JSONParseOptions options, FastReader input) {
+        this.input = input;
         this.valueFactory = options.valueFactory;
         this.comments = options.features.contains(JSONFeature.JAVA_COMMENTS);
         this.singleQuotes = options.features.contains(JSONFeature.SINGLE_QUOTES);

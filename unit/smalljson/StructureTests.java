@@ -6,7 +6,6 @@ import smalljson.parser.JSONTokenType;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.math.BigInteger;
 
@@ -35,7 +34,7 @@ public class StructureTests {
     }
 
     private static JSONParser rawParser(String json) {
-        return factory().newParser(new StringReader(json));
+        return factory().newParser(JSONFactory.toFast(json));
     }
 
     @Test

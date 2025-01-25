@@ -1,5 +1,8 @@
 package smalljson;
 
+import smalljson.parser.FastBufferedReader;
+import smalljson.parser.FastReader;
+import smalljson.parser.FastStringReader;
 import smalljson.parser.JSONParser;
 
 import java.io.*;
@@ -37,26 +40,40 @@ public final class JSONFactory {
         return new JSONArray(options.valueFactory.arrayValue());
     }
 
-    public JSONParser newParser(Reader rdr) {
+    // Parsing
+
+    public JSONParser newParser(FastReader rdr) {
         return new JSONParser(options, rdr);
     }
 
-    public static Reader toReader(InputStream is) {
-        return new InputStreamReader(is, StandardCharsets.UTF_8);
+    public static FastReader toFast(Reader rdr) {
+        return new FastBufferedReader(rdr);
+    }
+
+    public static FastReader toFast(InputStream is) {
+        return toFast(new InputStreamReader(is, StandardCharsets.UTF_8));
+    }
+
+    public static FastReader toFast(String json) {
+        return new FastStringReader(json);
     }
 
     // Objects
 
-    public JSONObject parseObject(Reader rdr) {
+    public JSONObject parseObject(FastReader rdr) {
         return newParser(rdr).parseObject();
     }
 
+    public JSONObject parseObject(Reader rdr) {
+        return parseObject(toFast(rdr));
+    }
+
     public JSONObject parseObject(InputStream is) {
-        return parseObject(toReader(is));
+        return parseObject(toFast(is));
     }
 
     public JSONObject parseObject(String json) {
-        return parseObject(new StringReader(json));
+        return parseObject(toFast(json));
     }
 
     public JSONObject parseObject(Path file) throws IOException {
@@ -67,16 +84,20 @@ public final class JSONFactory {
 
     // Arrays
 
-    public JSONArray parseArray(Reader rdr) {
+    public JSONArray parseArray(FastReader rdr) {
         return newParser(rdr).parseArray();
     }
 
+    public JSONArray parseArray(Reader rdr) {
+        return parseArray(toFast(rdr));
+    }
+
     public JSONArray parseArray(InputStream is) {
-        return parseArray(toReader(is));
+        return parseArray(toFast(is));
     }
 
     public JSONArray parseArray(String json) {
-        return parseArray(new StringReader(json));
+        return parseArray(toFast(json));
     }
 
     public JSONArray parseArray(Path file) throws IOException {
@@ -87,16 +108,20 @@ public final class JSONFactory {
 
     // Any value
 
-    public Object parse(Reader rdr) {
+    public Object parse(FastReader rdr) {
         return newParser(rdr).parse();
     }
 
+    public Object parse(Reader rdr) {
+        return parse(toFast(rdr));
+    }
+
     public Object parse(InputStream is) {
-        return parse(toReader(is));
+        return parse(toFast(is));
     }
 
     public Object parse(String json) {
-        return parse(new StringReader(json));
+        return parse(toFast(json));
     }
 
     public Object parse(Path file) throws IOException {
