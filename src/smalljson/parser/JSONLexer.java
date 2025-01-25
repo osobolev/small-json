@@ -393,8 +393,7 @@ public final class JSONLexer {
             }
             return new JSONToken(type, ident, value, index, line, column);
         } else {
-            String chStr = new String(Character.toChars(ch));
-            throw new JSONParseException(index, line, column, "Unexpected character '" + chStr + "'");
+            throw new JSONParseException(index, line, column, "Unexpected character '" + (char) ch + "'");
         }
     }
 
