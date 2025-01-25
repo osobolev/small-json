@@ -27,8 +27,8 @@ public final class JSONLexer {
     private int line = 1;
     private int column = 1;
     private int ch0 = 0;
-    private int ch1 = -1;
-    private int ch2 = -1;
+    private int ch1;
+    private int ch2;
 
     public JSONLexer(JSONParseOptions options, FastReader input) {
         this.input = input;
@@ -44,8 +44,12 @@ public final class JSONLexer {
         this.leadingPoint = options.features.contains(JSONFeature.LEADING_DECIMAL_POINT);
         this.trailingPoint = options.features.contains(JSONFeature.TRAILING_DECIMAL_POINT);
 
-        this.ch1 = nextChar();
-        this.ch2 = nextChar();
+        try {
+            this.ch1 = input.read();
+            this.ch2 = input.read();
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
     }
 
     private void moveLocation() {
@@ -62,26 +66,18 @@ public final class JSONLexer {
         }
     }
 
-    private int nextChar() {
-        try {
-            return input.read();
-        } catch (IOException ex) {
-            throw new UncheckedIOException(ex);
-        }
-    }
-
     private int ch() {
         return ch1;
     }
 
-    private void next() {
+    private void next() throws IOException {
         moveLocation();
         ch0 = ch1;
         ch1 = ch2;
-        ch2 = nextChar();
+        ch2 = input.read();
     }
 
-    private void skipSpaces() {
+    private void skipSpaces() throws IOException {
         while (true) {
             int ch = ch();
             if (ch < 0)
@@ -123,7 +119,7 @@ public final class JSONLexer {
         }
     }
 
-    private void parseEscape(StringBuilder buf) {
+    private void parseEscape(StringBuilder buf) throws IOException {
         int ch = ch();
         if (ch < 0) {
             throw new JSONParseException(index, line, column, "Unterminated escape sequence");
@@ -179,7 +175,7 @@ public final class JSONLexer {
         buf.append(escape);
     }
 
-    private JSONToken parseString(long index, int line, int column, int quote) {
+    private JSONToken parseString(long index, int line, int column, int quote) throws IOException {
         next();
         StringBuilder buf = new StringBuilder();
         while (true) {
@@ -209,7 +205,7 @@ public final class JSONLexer {
         NONE, ONLY_ZERO, HAS_NON_ZERO
     }
 
-    private Digits readDigits(StringBuilder buf) {
+    private Digits readDigits(StringBuilder buf) throws IOException {
         boolean hasAny = false;
         boolean hasNonZero = false;
         while (true) {
@@ -234,7 +230,7 @@ public final class JSONLexer {
         return "Infinity".equalsIgnoreCase(ident) || "inf".equalsIgnoreCase(ident);
     }
 
-    private JSONToken parseNumber(long index, int line, int column) {
+    private JSONToken parseNumber(long index, int line, int column) throws IOException {
         int isign = 0;
         if (ch() == '+') {
             if (!leadingPlus) {
@@ -315,7 +311,7 @@ public final class JSONLexer {
         return new JSONToken(floating ? JSONTokenType.FLOAT : JSONTokenType.INT, null, value, index, line, column);
     }
 
-    private String parseIdent() {
+    private String parseIdent() throws IOException {
         StringBuilder buf = new StringBuilder();
         buf.append((char) ch());
         next();
@@ -339,7 +335,7 @@ public final class JSONLexer {
         }
     }
 
-    public JSONToken nextToken() {
+    private JSONToken parseToken() throws IOException {
         skipSpaces();
         int ch = ch();
         long index = this.index;
@@ -399,6 +395,14 @@ public final class JSONLexer {
         } else {
             String chStr = new String(Character.toChars(ch));
             throw new JSONParseException(index, line, column, "Unexpected character '" + chStr + "'");
+        }
+    }
+
+    public JSONToken nextToken() {
+        try {
+            return parseToken();
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
         }
     }
 }
