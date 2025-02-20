@@ -20,13 +20,17 @@ public final class JSONWriter {
     private final String indent;
     private final String colon;
     private final String comma;
+    private final String lineComma;
     private final String eoln;
+    private final int arrayLineLimit;
 
     public JSONWriter(JSONWriteOptions options, Appendable out) {
         this.out = out;
         this.indent = options.indent;
         this.colon = options.colon;
         this.comma = options.comma;
+        this.lineComma = options.lineComma;
+        this.arrayLineLimit = options.arrayLineLimit;
         this.eoln = options.eoln;
     }
 
@@ -95,9 +99,58 @@ public final class JSONWriter {
         }
     }
 
-    private void writeArray(int nestingLevel, boolean empty, Iterable<?> collection) throws IOException {
-        if (empty) {
+    private static int arrayItemLen(Object value) {
+        if (value == null) {
+            return 4;
+        } else if (value instanceof CharSequence) {
+            CharSequence str = (CharSequence) value;
+            return str.length() + 2;
+        } else if (value instanceof Boolean) {
+            Boolean bool = (Boolean) value;
+            return bool.booleanValue() ? 4 : 5;
+        } else if (value instanceof Number) {
+            Number num = (Number) value;
+            return num.toString().length();
+        } else {
+            return -1;
+        }
+    }
+
+    private boolean arrayFitsLine(int size, Iterable<?> collection) {
+        if (arrayLineLimit <= 0)
+            return false;
+        if (size * (lineComma.length() + 1) > arrayLineLimit)
+            return false;
+        int sum = 0;
+        for (Object item : collection) {
+            int itemLen = arrayItemLen(item);
+            if (itemLen < 0)
+                return false;
+            if (sum > 0) {
+                sum += lineComma.length();
+            }
+            sum += itemLen;
+            if (sum > arrayLineLimit)
+                return false;
+        }
+        return true;
+    }
+
+    private void writeArray(int nestingLevel, int size, Iterable<?> collection) throws IOException {
+        if (size <= 0) {
             print("[]");
+        } else if (arrayFitsLine(size, collection)) {
+            print("[");
+            boolean first = true;
+            for (Object item : collection) {
+                if (first) {
+                    first = false;
+                } else {
+                    print(lineComma);
+                }
+                write(nestingLevel + 1, item);
+            }
+            print("]");
         } else {
             println("[");
             boolean first = true;
@@ -165,13 +218,13 @@ public final class JSONWriter {
             writeObject(nestingLevel, map.isEmpty(), map.entrySet());
         } else if (value instanceof JSONArray) {
             JSONArray array = (JSONArray) value;
-            writeArray(nestingLevel, array.isEmpty(), array);
+            writeArray(nestingLevel, array.length(), array);
         } else if (value instanceof Collection) {
             Collection<?> collection = (Collection<?>) value;
-            writeArray(nestingLevel, collection.isEmpty(), collection);
+            writeArray(nestingLevel, collection.size(), collection);
         } else if (value.getClass().isArray()) {
             int length = Array.getLength(value);
-            writeArray(nestingLevel, length <= 0, () -> new ArrayIterator(value, length));
+            writeArray(nestingLevel, length, () -> new ArrayIterator(value, length));
         } else if (value instanceof Boolean) {
             Boolean bool = (Boolean) value;
             print(bool.toString());

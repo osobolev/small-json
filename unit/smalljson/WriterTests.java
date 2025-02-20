@@ -43,12 +43,13 @@ public class WriterTests {
     public void testArray() {
         int[] array = {1, 2};
         assertEquals("[1,2]", JSONWriter.toString(JSONWriteOptions.COMPACT, array));
-        assertEquals("[1, 2]", JSONWriter.toString(new JSONWriteOptions("", ": ", ", ", ""), array));
+        assertEquals("[1, 2]", JSONWriter.toString(new JSONWriteOptions("", ": ", ", ", ", ", "", 0), array));
+        assertEquals("[1, 2]", JSONWriter.toString(JSONWriteOptions.pretty("  ", 80), array));
 
         JSONObject object = map("x", 1, "y", 2);
         assertEquals("{\"x\":1,\"y\":2}", JSONWriter.toString(JSONWriteOptions.COMPACT, object));
-        assertEquals("{\"x\": 1, \"y\": 2}", JSONWriter.toString(new JSONWriteOptions("", ": ", ", ", ""), object));
-        assertEquals("{\"x\" : 1, \"y\" : 2}", JSONWriter.toString(new JSONWriteOptions("", " : ", ", ", ""), object));
+        assertEquals("{\"x\": 1, \"y\": 2}", JSONWriter.toString(new JSONWriteOptions("", ": ", ", ", ", ", "", 0), object));
+        assertEquals("{\"x\" : 1, \"y\" : 2}", JSONWriter.toString(new JSONWriteOptions("", " : ", ", ", ", ", "", 0), object));
     }
 
     @Test
