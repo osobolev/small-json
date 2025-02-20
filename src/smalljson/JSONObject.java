@@ -42,15 +42,15 @@ public final class JSONObject implements Iterable<Map.Entry<String, Object>> {
     }
 
     public <T> T opt(String key, Class<T> cls, T defaultValue) {
-        Object value = map.get(key);
-        T result = JSONConverter.convert(cls, value);
+        T result = opt(key, cls);
         if (result == null)
             return defaultValue;
         return result;
     }
 
     public <T> T opt(String key, Class<T> cls) {
-        return opt(key, cls, null);
+        Object value = map.get(key);
+        return JSONConverter.convert(cls, value);
     }
 
     private void checkKeyExists(String key) {
