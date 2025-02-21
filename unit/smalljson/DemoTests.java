@@ -202,7 +202,7 @@ public class DemoTests {
         {
             // Parse JSON text with simple value:
             Object value = JSON.parse("1000");
-            // Array is always parsed as JSONArray:
+            // Numbers by default are parsed as Number:
             assertInstanceOf(Number.class, value);
             // By default integer numbers are put in the minimal type of (int, long, BigInteger)
             // that can contain them, but you can use Number for any of these types:
