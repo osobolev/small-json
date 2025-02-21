@@ -41,6 +41,9 @@ public final class JSONObject implements Iterable<Map.Entry<String, Object>> {
         return map.get(key);
     }
 
+    /**
+     * Returns {@code defaultValue} if {@link #opt(String, Class)} returns null
+     */
     public <T> T opt(String key, Class<T> cls, T defaultValue) {
         T result = opt(key, cls);
         if (result == null)
@@ -48,6 +51,13 @@ public final class JSONObject implements Iterable<Map.Entry<String, Object>> {
         return result;
     }
 
+    /**
+     * Returns null if:
+     * <ul>
+     * <li>{@code key} is not present</li>
+     * <li>the value for {@code key} is JSON {@code null} and {@link JSONValueFactory#nullValue()} returns null</li>
+     * </ul>
+     */
     public <T> T opt(String key, Class<T> cls) {
         Object value = map.get(key);
         return JSONConverter.convert(cls, value);
