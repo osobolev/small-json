@@ -97,6 +97,7 @@ public final class JSONObject implements Iterable<Map.Entry<String, Object>> {
         return map.remove(key);
     }
 
+    @Override
     public String toString() {
         return map.toString();
     }

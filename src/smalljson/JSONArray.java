@@ -67,6 +67,7 @@ public final class JSONArray implements Iterable<Object> {
         return list.remove(index);
     }
 
+    @Override
     public String toString() {
         return list.toString();
     }
