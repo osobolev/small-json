@@ -14,10 +14,20 @@ public class JSONValueFactory {
         return Double.NaN;
     }
 
+    /**
+     * Value for: "inf", "+inf", "-inf"
+     *
+     * @param sign 0/+1/-1
+     */
     public Object infinityValue(int sign) {
         return sign < 0 ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
     }
 
+    /**
+     * Value for: "0", "+0", "-0"
+     *
+     * @param sign 0/+1/-1
+     */
     public Object zeroValue(int sign) {
         return 0;
     }
@@ -26,6 +36,11 @@ public class JSONValueFactory {
         return new BigInteger(sign < 0 ? "-" + digits : digits);
     }
 
+    /**
+     * Value for: "123"/"+123", "-123"
+     *
+     * @param sign +1/-1 (never 0)
+     */
     public Object intValue(int sign, String digits) {
         if (digits.length() <= 9) {
             return Integer.parseInt(digits) * sign;
