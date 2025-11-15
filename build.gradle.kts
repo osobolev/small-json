@@ -1,6 +1,10 @@
+import com.vanniktech.maven.publish.JavaLibrary
+import com.vanniktech.maven.publish.JavadocJar
+
 description = "Small JSON library"
 
 plugins {
+    id("com.vanniktech.maven.publish") version "0.35.0"
     `module-lib`
 }
 
@@ -16,7 +20,18 @@ tasks.named<Test>("test") {
     useJUnitPlatform()
 }
 
-(publishing.publications["mavenJava"] as MavenPublication).pom {
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+
+    coordinates("${project.group}", "${project.name}", "${project.version}")
+    configure(JavaLibrary(
+        javadocJar = JavadocJar.Javadoc(),
+        sourcesJar = true
+    ))
+}
+
+mavenPublishing.pom {
     name.set("small-json")
     description.set("Small JSON library")
     url.set("https://github.com/osobolev/small-json")
