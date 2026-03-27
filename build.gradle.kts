@@ -12,15 +12,6 @@ plugins {
 group = "io.github.osobolev"
 version = "1.4"
 
-dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter:6.0.3")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
-tasks.named<Test>("test").configure {
-    useJUnitPlatform()
-}
-
 mavenPublishing {
     publishToMavenCentral()
     signAllPublications()

@@ -34,6 +34,9 @@ configurations["manualCompileOnly"].extendsFrom(configurations["compileOnly"])
 
 dependencies {
     "manualImplementation"(sourceSets["main"].output)
+
+    testImplementation("org.junit.jupiter:junit-jupiter:6.0.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks {
@@ -50,6 +53,9 @@ tasks {
     }
     jar {
         manifest.attributes["Implementation-Version"] = project.version
+    }
+    named<Test>("test").configure {
+        useJUnitPlatform()
     }
 }
 
