@@ -39,7 +39,7 @@ dependencies {
 tasks {
     withType(JavaCompile::class).configureEach {
         options.encoding = "UTF-8"
-        options.release.set(8)
+        options.release.set(if (name == "compileTestJava") 17 else 8)
         options.compilerArgs.add("-Xlint:deprecation")
     }
     javadoc {
