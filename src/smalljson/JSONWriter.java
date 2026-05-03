@@ -9,8 +9,6 @@ import java.util.Map;
 
 public final class JSONWriter {
 
-    public static final String DEFAULT_INDENT = "    ";
-
     public interface RawValue {
 
         String rawJsonOutput();
