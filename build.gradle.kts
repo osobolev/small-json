@@ -5,7 +5,8 @@ import com.vanniktech.maven.publish.SourcesJar
 description = "Small JSON library"
 
 plugins {
-    id("com.vanniktech.maven.publish") version "0.36.0"
+    id("com.github.ben-manes.versions") version "0.54.0"
+    id("com.vanniktech.maven.publish") version "0.37.0"
     `module-lib`
 }
 
@@ -43,5 +44,13 @@ mavenPublishing.pom {
         connection.set("scm:git:https://github.com/osobolev/small-json.git")
         developerConnection.set("scm:git:https://github.com/osobolev/small-json.git")
         url.set("https://github.com/osobolev/small-json")
+    }
+}
+
+tasks.withType(com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask::class).configureEach {
+    rejectVersionIf {
+        candidate.version.contains("-M") ||
+        candidate.version.contains("-RC") ||
+        candidate.version.contains("-rc")
     }
 }
